@@ -9,14 +9,18 @@ void fillPossibleMoves(int[30][2] ,int, int);
 int isSameColorOrEmpty(char, char);
 char getColor(char);
 int isPossibleMove(int, int, int, int, int[30][2]);
-void getUserMove(int[], int[30][2]);
+int getUserMove(int, int[], int[30][2]);
 void move(int, int, int, int, int[30][2]);
 int isThreatened(char, int, int);
 int inputColToColNumber(char);
 int inputRowToRowNum(int);
 char colNumToInputCol(int);
 int rowNumToInputRow(int);
-void playGame();
+int playGame();
+int findKing(char, int[2]);
+int isChecked(char);
+int isCheckmated(char);
+int kingCantMove(char);
 
 
 // p, r, n, b, q, k  for black
@@ -38,43 +42,73 @@ char board[8][8];
 
 
 int main(int argc, char * argv[]){
-	
-	playGame();
-	
+	char* winnerStr;
+	int isWinnerWhite;
+
+	isWinnerWhite = playGame();
+	if(isWinnerWhite == -1){
+		printf("Error caused program to crash.\n");
+		return EXIT_FAILURE;
+	}
+
+	printBoard();
+	winnerStr = isWinnerWhite ? "white" : "black";
+	printf("%s wins.\n", winnerStr);
+
 	return EXIT_SUCCESS;
 }
 
-void playGame(){
+//returns 1 if white wins, 0 if black wins
+int playGame(){
 	int possibleMoves[30][2];
 	int userMove[4]; // {row, col, rowTarget, colTarget}
-	int isGameOver=0;
+	int gameOver=0;
+	int whiteTurn = 1 ; //=1 for white, 0 for black's turn
+	int winner;
 
 	initBoard();
-	while(!isGameOver){
-		system("clear");
+	system("clear");
+	printf("\t\t   ╔═╗╦ ╦╔═╗╔═╗╔═╗\n\t\t   ║  ╠═╣║╣ ╚═╗╚═╗\n\t\t   ╚═╝╩ ╩╚═╝╚═╝╚═╝\n");
+
+	while(!gameOver){
 		printBoard();
-		getUserMove(userMove, possibleMoves);
+		//exits program in case of input error
+		if(getUserMove(whiteTurn, userMove, possibleMoves) == 0){
+			return -1;
+		}
 		fillPossibleMoves(possibleMoves, userMove[0], userMove[1]);
 		move( userMove[0], userMove[1],  userMove[2], userMove[3], possibleMoves);
+		system("clear");
 
+		char ennemyKing = whiteTurn? blackKing : whiteKing;
+		if(isCheckmated(ennemyKing)){
+			gameOver=1;
+		}
+
+		whiteTurn = !whiteTurn;
 	}
+
+	winner = whiteTurn? 0 : 1;
+
+	return winner;
 }
 
-//gets starting and destination square coordinates 
-void getUserMove(int res[4], int possibleMoves[30][2]){
+//gets starting and destination square coordinates for current player
+//returns 1 if successful, 0 if user input error
+int getUserMove(int whiteTurn, int res[4], int possibleMoves[30][2]){
 	int row;
 	char col;
 	int rowDest;
 	char colDest;
 	int scanRes = 0;
+	char* currPlayer = ( whiteTurn? "White" : "Black" );
 
-	printf("Enter a starting square [a-h][1-8]\n");
+	printf("\t%s, enter a starting square [a-h][1-8] : ", currPlayer);
 	scanRes = scanf(" %c%d", &col, &row);
 
-	if( scanRes!=2 || col<'a' || col>'h' || row<1 || row>8){
+	if( scanRes!=2 || col<'a' || col>'h' || row<1 || row>8 ){
 		printf("Input error.\n");
-		getUserMove(res, possibleMoves);
-		return;
+		return 0;
 	}
 
 	//convert input row/col numbers
@@ -83,37 +117,44 @@ void getUserMove(int res[4], int possibleMoves[30][2]){
 	res[1] = inputColToColNumber(col);
 
 
+	//check if starting square contains piece of correct color
+	char currPlayerKing = ( whiteTurn? whiteKing : blackKing );
+	if(board[res[0]][res[1]]==' '){
+		printf("Selected square is empty.\n");
+		getUserMove(whiteTurn, res, possibleMoves);
+		return 1;		
+	}
+	if( isSameColorOrEmpty(board[res[0]][res[1]], currPlayerKing) != 1 ){
+		printf("Selected square does not contain a piece of the correct color.\n");
+		getUserMove(whiteTurn, res, possibleMoves);
+		return 1;
+	}
+
 	//print possible moves 
 	fillPossibleMoves(possibleMoves, res[0], res[1]);
 	for(int i=0; i<30; i++){
 		if(possibleMoves[i][0]!=-1) printf("[ %c%d ] ",  colNumToInputCol(possibleMoves[i][1]) ,rowNumToInputRow(possibleMoves[i][0]));
 		else if(i==0){
-			if(board[row][col]==' '){
-				printf("Selected square is empty.\n");
-			}else {
-				printf("No possible moves !\n");
-				getUserMove(res, possibleMoves);
-				return;
-			}
+			printf("No possible moves !\n");
+			getUserMove(whiteTurn, res, possibleMoves);
+			return 1;
 		}
 	}
 
 	//get destination
-	printf("Choose a destination square :\n");
+	printf("\n\tChoose a destination square : ");
 	scanRes = 0;
 	scanRes = scanf(" %c%d", &colDest, &rowDest);
 
 	if(scanRes!=2 || colDest<97 || colDest>104 || rowDest<1 || rowDest>8){
 		printf("Input error.\n");
-		getUserMove(res, possibleMoves);
-		return;
+		return 0;
 	}
 
 	res[2] = inputRowToRowNum(rowDest);
 	res[3] = inputColToColNumber(colDest);
 
-
-
+	return 1;
 }
 
 //7-0 to 1-8
@@ -121,7 +162,7 @@ int rowNumToInputRow (int row){
 	return 8-row;
 }
 
-//1-8 to 0-7
+//1-8 to 7-0
 int inputRowToRowNum (int row){
 	return 8-row;
 }
@@ -221,18 +262,18 @@ void initBackCell(int line, int cell){
 void printBoard(){
 	printSeparator();
 	for(int i=0; i<8; i++){
-		printf("\t");
+		printf("\t%d ", rowNumToInputRow(i) );
 		for(int j=0; j<8; j++){
 			printf("| %c ", board[i][j]);
 		}
 		printf("|");
 		printSeparator();
 	}
-	printf("\n");
+	printf("\t    a   b   c   d   e   f   g   h\n\n");
 }
 
 void printSeparator(){
-	printf("\n\t+---+---+---+---+---+---+---+---+\n");
+	printf("\n\t  +---+---+---+---+---+---+---+---+\n");
 }
 
 
@@ -483,9 +524,9 @@ void fillPossibleMoves(int arr[30][2], int row, int col){
 		int topRightAvailable = ((row-1 >= 0) && (col+1 < 8) && isSameColorOrEmpty(board[row][col], board[row-1][col+1]) != 1);
 		int rightAvailable = ( (col+1 < 8) && isSameColorOrEmpty(board[row][col], board[row][col+1]) != 1);
 		int leftAvailable = ( (col-1 >=0) && isSameColorOrEmpty(board[row][col], board[row][col-1]) != 1);
-		int bottomLeftAvailable = ((row+1 >=0) && (col-1 >=0) && isSameColorOrEmpty(board[row][col], board[row+1][col-1]) != 1);
-		int bottomAvailable = ((row+1 >=0) && isSameColorOrEmpty(board[row][col], board[row+1][col]) != 1);
-		int bottomRightAvailable = ((row+1 >= 0) && (col+1 < 8) && isSameColorOrEmpty(board[row][col], board[row+1][col+1]) != 1);
+		int bottomLeftAvailable = ((row+1 < 8) && (col-1 >=0) && isSameColorOrEmpty(board[row][col], board[row+1][col-1]) != 1);
+		int bottomAvailable = ((row+1 < 8) && isSameColorOrEmpty(board[row][col], board[row+1][col]) != 1);
+		int bottomRightAvailable = ((row+1 < 8) && (col+1 < 8) && isSameColorOrEmpty(board[row][col], board[row+1][col+1]) != 1);
 
 		if(topLeftAvailable && !isThreatened(piece, row-1, col-1)){
 			arr[currIndex][0] = row-1;
@@ -561,7 +602,14 @@ char getColor(char piece){
 
 void move(int fromRow, int fromCol, int targetRow, int targetCol, int possibleMoves[30][2]){
 	if(isPossibleMove(fromRow, fromCol, targetRow, targetCol, possibleMoves)){
-		board[targetRow][targetCol] = board[fromRow][fromCol];
+		if( (board[fromRow][fromCol] == whitePawn) && targetRow == 0 ){
+			board[targetRow][targetCol] = whiteQueen;
+		}else if((board[fromRow][fromCol] == blackPawn) && (targetRow == 7)){
+			board[targetRow][targetCol] = blackQueen;
+		}else {
+			board[targetRow][targetCol] = board[fromRow][fromCol];
+		}
+
 		board[fromRow][fromCol] = ' ';
 	}else printf("Move not avaiblable.\n");
 }
@@ -579,7 +627,7 @@ int isPossibleMove(int fromRow, int fromCol, int targetRow, int targetCol, int p
 	return res;
 }
 
-//takes blackKing or whiteKing and the coordinates of the cell to check
+//takes 'k' or 'K' and the coordinates of the cell to check
 //returns 1 if board[row][col] is threatened by the other color
 int isThreatened(char king, int row, int col){
 
@@ -709,5 +757,59 @@ int isThreatened(char king, int row, int col){
 	}
 	
 	return 0;
+}
 
+int findKing(char king, int location[2]){
+	for(int i=0; i<8; i++){
+		for(int j=0; j<8; j++){
+			if(board[i][j]==king){
+				location[0]=i;
+				location[1]=j;
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int isChecked(char king){
+	int res;
+	int kingLocation[2];
+	
+	findKing(king, kingLocation);
+	res = isThreatened(king, kingLocation[0], kingLocation[1]);
+
+	return res;
+}
+
+int kingCantMove(char king){
+	int res = 1;
+	int kingLocation[2];
+	int row;
+	int col;
+	
+	findKing(king, kingLocation);
+	row = kingLocation[0];
+	col = kingLocation[1];
+
+	int canMoveTopLeft = (row-1 >= 0) && (col-1 >= 0) && !isThreatened(king, row-1, col-1) && !(isSameColorOrEmpty(king, board[row-1][col-1]) == 1);
+	int canMoveTop = (row-1 >= 0) && !isThreatened(king, row-1, col) && !(isSameColorOrEmpty(king, board[row-1][col]) == 1);
+	int canMoveTopRight = (row-1 >= 0) && (col+1 < 8) && !isThreatened(king, row-1, col+1) && !(isSameColorOrEmpty(king, board[row-1][col+1]) == 1);
+	int canMoveRight = (col+1 < 8) && !isThreatened(king, row, col+1) && !(isSameColorOrEmpty(king, board[row][col+1]) == 1);
+	int canMoveBottomRight = (row+1 < 8) && (col+1 < 8) && !isThreatened(king, row+1, col+1) && !(isSameColorOrEmpty(king, board[row+1][col+1]) == 1);
+	int canMoveBottom = (row+1 < 8) && !isThreatened(king, row+1, col) && !(isSameColorOrEmpty(king, board[row+1][col]) == 1);
+	int canMoveBottomLeft = (row+1 < 8) && (col-1 >= 0) && !isThreatened(king, row+1, col-1) && !(isSameColorOrEmpty(king, board[row+1][col-1]) == 1);
+	int canMoveLeft = (col-1 >= 0) && !isThreatened(king, row, col-1) && !(isSameColorOrEmpty(king, board[row][col-1]) == 1);
+
+	if( canMoveTopLeft || canMoveTop || canMoveTopRight || canMoveRight || canMoveBottomRight || canMoveBottom || canMoveBottomLeft || canMoveLeft ){
+		res = 0;
+	}
+
+	return res;
+}
+
+int isCheckmated(char king){
+	int res = kingCantMove(king) && isChecked(king);
+
+	return res;
 }
