@@ -28,13 +28,13 @@ public class TeamCapturedPiecesPanel extends JPanel {
 
 		setLayout( new BoxLayout(this, BoxLayout.PAGE_AXIS ) );
 		setBorder(BorderFactory.createTitledBorder(team));
-		setPreferredSize( new Dimension( 350, 80) );
+		setPreferredSize( new Dimension( 350, 130 ) );
 
 		imagesPanel = new JPanel();
-		imagesPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10) );
+		imagesPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 4) );
 		
 		countPanel = new JPanel();
-		imagesPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10) );
+		imagesPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 4) );
 		
 		add(imagesPanel);
 		add(countPanel);

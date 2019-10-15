@@ -1,4 +1,5 @@
-import javax.swing.BoxLayout;
+import java.awt.BorderLayout;
+
 import javax.swing.JPanel;
 
 public class InfoPanel extends JPanel {
@@ -10,11 +11,10 @@ public class InfoPanel extends JPanel {
 		blackInfoPanel = new TeamCapturedPiecesPanel("Black");
 		whiteInfoPanel = new TeamCapturedPiecesPanel("White");
 		
-		//setLayout( new BoxLayout(this, BoxLayout.PAGE_AXIS) );
+		setLayout( new BorderLayout() );
 		
-		
-		add(blackInfoPanel);
-		add(whiteInfoPanel);
+		add(blackInfoPanel, BorderLayout.PAGE_START);
+		add(whiteInfoPanel, BorderLayout.PAGE_END);
 		
 	}
 	
