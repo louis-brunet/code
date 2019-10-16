@@ -5,16 +5,17 @@ import java.util.Arrays;
 
 public class Board extends JPanel {
 
+	Application a; //application context
 	Cell[][] board;
 	String currentPlayer;
 	Cell selectedCell;
-	boolean gameOver;
-	InfoPanel infoPanel;
+	Cell targetCell;
+	boolean gameOver;	
 	
-	public Board(InfoPanel infoPanel) {
+	public Board(Application a) {
 		initBoard();
 		
-		this.infoPanel = infoPanel;
+		this.a = a;
 	}
 	
 	//creates a copy of board b, move piece at firstCell to targetCell
@@ -24,20 +25,26 @@ public class Board extends JPanel {
 		board = new Cell[8][8];
 		
 		currentPlayer = b.currentPlayer;
-		selectedCell = null;
 		
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
+				if(i == targetCell.row && j == targetCell.col) {
+					board[i][j] = new Cell(targetCell);
+				}else if(i == firstCell.row && j == firstCell.col) {
+					selectedCell = b.board[i][j];
+				}
 				board[i][j] = new Cell(b.board[i][j]);
+				
 				Cell currCell = board[i][j];
 				add(currCell);
-				//currCell.addPieceSelectedListener(this);
 			}
 		}
 		
 		gameOver = b.gameOver;
 		
-		board[firstCell.row][firstCell.col].movePieceTo(board[targetCell.row][targetCell.col]);
+		board[firstCell.row][firstCell.col].movePieceTo(board[targetCell.row][targetCell.col], this);
+		
+		updateGameOver();
 	}
 	
 	/**
@@ -49,6 +56,7 @@ public class Board extends JPanel {
 		
 		currentPlayer = Piece.white;
 		selectedCell = null;
+		targetCell = null;
 		
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
@@ -350,7 +358,7 @@ public class Board extends JPanel {
 		c.canMove = !(index == 0);
 	}
 	
-	//check if cell c is threatened for team
+	//check if cell c is threatened for team (friendly team)
 	public boolean isThreatened(Cell c, String team) {
 		int row = c.row;
 		int col = c.col;
@@ -521,6 +529,7 @@ public class Board extends JPanel {
 	}
 	
 	public void updateGameOver() {
+		gameOver = false;
 		String ennemyTeam = currentPlayer == Piece.white ? Piece.black : Piece.white;
 		Cell ennemyKing = getKingLocation( ennemyTeam );
 		if( isThreatened(ennemyKing, ennemyKing.piece.team) ){
@@ -529,7 +538,8 @@ public class Board extends JPanel {
 				Cell threat = getThreat(ennemyKing, ennemyKing.piece.team);
 				System.out.println("Found threat at "+threat.row+", "+threat.col);
 				
-				if(!isThreatened(threat, ennemyTeam)) {
+				//TODO: ADD CHECK TO SEE IF ANY CURRENTPLAYER PIECES CAN GET IN THE WAY OF THREAT
+				if(!isThreatened(threat, currentPlayer)) {
 					gameOver = true;
 				}else {
 					Cell threat2 = getThreat(threat, currentPlayer );
@@ -570,6 +580,7 @@ public class Board extends JPanel {
 		return (row>=0 && row<8 && col>=0 && col<8);
 	}
 	
+	//team is friendly team
 	private Cell getThreat(Cell c, String team) {
 		int row = c.row;
 		int col = c.col;
@@ -696,7 +707,8 @@ public class Board extends JPanel {
 		//king		
 		for(int i = -1; i<2 && row+i>=0 && row+i<8; i++) {
 			for(int j = -1; j<2 && col+j>=0 && col+j<8; j++) {
-				if( (i!=0 || j!=0) && board[row+i][col+j].piece.type == Piece.king ) {
+				if( (i!=0 || j!=0) && board[row+i][col+j].piece.type == Piece.king && board[row+i][col+j].piece.isOpposingTeam(team) ) {
+					setPossibleMoves(board[row+i][col+j]);
 					if(board[row+i][col+j].canMoveTo(board[row][col], this)) {
 						return board[i][j];
 					}
@@ -737,14 +749,13 @@ public class Board extends JPanel {
 		return c;
 	}
 
-	public void moveSelectedTo(Cell clicked) {
-		if(clicked.piece.isOpposingTeam(selectedCell.piece.team)) {
-			infoPanel.getInfoPanel(currentPlayer).addOne(clicked.piece);
+	public void moveSelected() {
+		if(targetCell.piece.isOpposingTeam(selectedCell.piece.team)) {
+			a.addOneToCaptured(currentPlayer, targetCell.piece);
 		}
 	
-		selectedCell.movePieceTo( clicked );
-		updateGameOver();
-		nextPlayer();
+		selectedCell.movePieceTo( targetCell, this );
+		
 	}
 	
 }

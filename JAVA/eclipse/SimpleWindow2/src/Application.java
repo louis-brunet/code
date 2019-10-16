@@ -11,7 +11,7 @@ public class Application extends JFrame {
 
 	private JPanel contentPane;
 	private Board board; //board panel
-	private InfoPanel infoPanel;
+	public InfoPanel infoPanel;
 
 	/**
 	 * Launch the application.
@@ -43,11 +43,11 @@ public class Application extends JFrame {
 		contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
 		contentPane.setLayout(new BorderLayout());
 		
-		infoPanel = new InfoPanel();
-		contentPane.add(infoPanel, BorderLayout.LINE_END);
-		
-		board = new Board(infoPanel);
+		board = new Board(this);
 		contentPane.add(board, BorderLayout.CENTER);
+		
+		infoPanel = new InfoPanel(board);
+		contentPane.add(infoPanel, BorderLayout.LINE_END);
 		
 		setContentPane(contentPane);
 		
@@ -59,5 +59,8 @@ public class Application extends JFrame {
 		
 	}
 	
+	public void addOneToCaptured(String team, Piece piece) {
+		infoPanel.getInfoPanel(team).addOne(piece);
+	}
 
 }

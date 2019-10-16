@@ -28,7 +28,7 @@ public class TeamCapturedPiecesPanel extends JPanel {
 
 		setLayout( new BoxLayout(this, BoxLayout.PAGE_AXIS ) );
 		setBorder(BorderFactory.createTitledBorder(team));
-		setPreferredSize( new Dimension( 350, 130 ) );
+		setPreferredSize( new Dimension( 300, 120 ) );
 
 		imagesPanel = new JPanel();
 		imagesPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 4) );

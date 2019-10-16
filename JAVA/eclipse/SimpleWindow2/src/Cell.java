@@ -80,7 +80,7 @@ public class Cell extends JButton{
 					Cell clickedCell = (Cell) e.getSource();
 					//case where player selects starting cell
 					if( piece.team == b.currentPlayer ) {
-						//re-init old selected piece background if another starting piece is chosen
+						//re-initialise old selected piece background if another starting piece is chosen
 						if( b.selectedCell != null ) {
 							b.selectedCell.initBackground();
 						}
@@ -95,17 +95,16 @@ public class Cell extends JButton{
 							Cell friendlyKing = b.getKingLocation(b.currentPlayer);
 							if( b.isThreatened(friendlyKing, b.currentPlayer) ) {
 								Board b2 = new Board(b, b.selectedCell, clickedCell);
-								if( !b2.isThreatened(b.board[friendlyKing.row][friendlyKing.col], b.currentPlayer) ){
-									b.moveSelectedTo(clickedCell);
-									/*b.selectedCell.movePieceTo( clickedCell );
-									b.updateGameOver();
-									b.nextPlayer();*/
+								if( b.selectedCell.piece.type != Piece.king && !b2.isThreatened(b2.board[friendlyKing.row][friendlyKing.col], b.currentPlayer) ){
+									b.targetCell = clickedCell;
+									b.moveSelected();
+								}else if( b.selectedCell.piece.type == Piece.king && !b2.isThreatened(b2.board[clickedCell.row][clickedCell.col], b.currentPlayer) ) {
+									b.targetCell = clickedCell;
+									b.moveSelected();
 								}
 							}else {
-								b.moveSelectedTo(clickedCell);
-								/*b.selectedCell.movePieceTo( clickedCell );
-								b.updateGameOver();
-								b.nextPlayer();*/
+								b.targetCell = clickedCell;
+								b.moveSelected();
 							}
 						}
 					}
@@ -130,22 +129,27 @@ public class Cell extends JButton{
 	/**
 	 * Update UI with player move
 	 */
-	public void movePieceTo(Cell c) {		
+	public void movePieceTo(Cell c, Board b) {		
 		if ( piece.type == "" ) {
 			return;
 		}
 		
-		c.piece = new Piece(piece);
-		//TODO: expand pawn promotion logic, add option menu for desired type promotion
-		boolean isPawnPromotion = (c.row == 0 && c.piece.team == Piece.white) || (c.row == 7 && c.piece.team == Piece.black); 
+		boolean isPawnPromotion = (c.row == 0 && b.currentPlayer == Piece.white && b.selectedCell.piece.type == Piece.pawn) || 
+				(c.row == 7 && b.currentPlayer == Piece.black && b.selectedCell.piece.type == Piece.pawn); 
+		
 		if( isPawnPromotion ) {
-			c.piece.setType(Piece.queen);
+			b.gameOver = true;
+			b.a.infoPanel.promotionPanel.setTeam(b.currentPlayer);
+			b.a.infoPanel.promotionPanel.setVisible(true);
+		}else {
+			c.piece = new Piece(piece);
 			c.displayImage();
+			piece.empty();
+			displayImage();
+			b.updateGameOver();
+			b.nextPlayer();
 		}
 		
-		c.displayImage();
-		piece.empty();
-		displayImage();
 	}
 	
 	public boolean isThreatenedByKnightAt(int knightRow, int knightCol, String team, Board b) {
