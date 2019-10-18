@@ -11,7 +11,7 @@ public class Application extends JFrame {
 
 	private JPanel contentPane;
 	private Board board; //board panel
-	public InfoPanel infoPanel;
+	public SidePanel sidePanel;
 
 	/**
 	 * Launch the application.
@@ -44,10 +44,10 @@ public class Application extends JFrame {
 		contentPane.setLayout(new BorderLayout());
 		
 		board = new Board(this);
-		contentPane.add(board, BorderLayout.CENTER);
+		contentPane.add(board, BorderLayout.LINE_START);
 		
-		infoPanel = new InfoPanel(board);
-		contentPane.add(infoPanel, BorderLayout.LINE_END);
+		sidePanel = new SidePanel(board);
+		contentPane.add(sidePanel, BorderLayout.LINE_END);
 		
 		setContentPane(contentPane);
 		
@@ -60,7 +60,23 @@ public class Application extends JFrame {
 	}
 	
 	public void addOneToCaptured(String team, Piece piece) {
-		infoPanel.getInfoPanel(team).addOne(piece);
+		sidePanel.getInfoPanel(team).addOne(piece);
 	}
-
+	
+	public void resetBoard(){
+		contentPane.remove(board);
+		board = new Board(this);
+		contentPane.add(board, BorderLayout.LINE_START);
+		contentPane.revalidate();
+	}
+	
+	public void undoMove() {
+		if(board.lastBoard != null) {
+			contentPane.remove(board);
+			board = board.lastBoard;
+			contentPane.add(board, BorderLayout.LINE_START);
+			contentPane.revalidate();
+		}
+	}
+	
 }

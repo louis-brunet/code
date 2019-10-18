@@ -1,5 +1,6 @@
 import javax.swing.JPanel;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.Arrays;
 
@@ -10,7 +11,8 @@ public class Board extends JPanel {
 	String currentPlayer;
 	Cell selectedCell;
 	Cell targetCell;
-	boolean gameOver;	
+	boolean gameOver;
+	Board lastBoard;
 	
 	public Board(Application a) {
 		initBoard();
@@ -18,12 +20,47 @@ public class Board extends JPanel {
 		this.a = a;
 	}
 	
-	//creates a copy of board b, move piece at firstCell to targetCell
+	/**
+	 * Copy board b
+	 */
+	public Board(Board b) {
+		setLayout( new GridLayout(8, 8) );
+		
+		board = new Cell[8][8];
+		lastBoard = b.lastBoard;
+		currentPlayer = b.currentPlayer;
+		
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8; j++) {
+				board[i][j] = new Cell(b.board[i][j]);
+				Cell currCell = board[i][j];
+
+				if(b.targetCell != null && i == b.targetCell.row && j == b.targetCell.col) {
+					targetCell = currCell;
+				}else if(b.selectedCell != null && i == b.selectedCell.row && j == b.selectedCell.col) {
+					selectedCell = currCell;
+				}else if(b.targetCell == null){
+					targetCell = null;
+				}else if(b.selectedCell == null){
+					selectedCell = null;
+				}
+				
+				add(currCell);
+				currCell.addPieceSelectedListener(this);
+			}
+		}
+		
+		gameOver = b.gameOver;
+	}
+	
+	/**
+	* Copy  board b, move piece at firstCell to targetCell
+	*/
 	public Board(Board b, Cell firstCell, Cell targetCell) {
 		setLayout( new GridLayout(8, 8) );
 		
 		board = new Cell[8][8];
-		
+		lastBoard = null;
 		currentPlayer = b.currentPlayer;
 		
 		for(int i=0; i<8; i++) {
@@ -57,6 +94,7 @@ public class Board extends JPanel {
 		currentPlayer = Piece.white;
 		selectedCell = null;
 		targetCell = null;
+		lastBoard = null;
 		
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
@@ -358,7 +396,9 @@ public class Board extends JPanel {
 		c.canMove = !(index == 0);
 	}
 	
-	//check if cell c is threatened for team (friendly team)
+	/**
+	 * check if cell c is threatened for team (friendly team)
+	 */
 	public boolean isThreatened(Cell c, String team) {
 		int row = c.row;
 		int col = c.col;
@@ -532,14 +572,31 @@ public class Board extends JPanel {
 		gameOver = false;
 		String ennemyTeam = currentPlayer == Piece.white ? Piece.black : Piece.white;
 		Cell ennemyKing = getKingLocation( ennemyTeam );
+		
+		for(int i = 0; i<board.length; i++) {
+			for(int j = 0; j<board[i].length; j++) {
+				board[i][j].initBackground();
+			}
+		}
+		
 		if( isThreatened(ennemyKing, ennemyKing.piece.team) ){
 			setPossibleMoves(ennemyKing);
+			Cell threat = getThreat(ennemyKing, ennemyKing.piece.team);
 			if(!ennemyKing.canMove) {
-				Cell threat = getThreat(ennemyKing, ennemyKing.piece.team);
 				System.out.println("Found threat at "+threat.row+", "+threat.col);
 				
-				//TODO: ADD CHECK TO SEE IF ANY CURRENTPLAYER PIECES CAN GET IN THE WAY OF THREAT
-				if(!isThreatened(threat, currentPlayer)) {
+				Cell[] threatPath = getPathToKingThreat(threat);
+				boolean threatIsBlockable = false;
+				
+				for(int i=0; i<threatPath.length; i++) {
+					Cell potentialPawnCell = currentPlayer == Piece.white ? board[threatPath[i].row+1][threatPath[i].col] : board[threatPath[i].row-1][threatPath[i].col];
+					boolean pawnCanBlock = (potentialPawnCell.piece.type == Piece.pawn) && potentialPawnCell.piece.isSameTeam(currentPlayer);
+					if( isThreatened(threatPath[i], ennemyTeam) || pawnCanBlock ) {
+						threatIsBlockable = true;
+					}
+				}
+				
+				if(!isThreatened(threat, currentPlayer) && !threatIsBlockable) {//TODO: ADD CHECK TO SEE IF ANY CURRENTPLAYER PIECES CAN GET IN THE WAY OF THREAT
 					gameOver = true;
 				}else {
 					Cell threat2 = getThreat(threat, currentPlayer );
@@ -547,6 +604,7 @@ public class Board extends JPanel {
 
 				}
 			}
+			threat.setBackground(Color.RED);
 		}
 		
 	}
@@ -564,7 +622,7 @@ public class Board extends JPanel {
 	}
 	
 	/**
-	 * Switch turn
+	 * Switch turn, updates currentPlayer and selectedCell
 	 */
 	public void nextPlayer() {
 		if(currentPlayer == Piece.white) {
@@ -580,7 +638,9 @@ public class Board extends JPanel {
 		return (row>=0 && row<8 && col>=0 && col<8);
 	}
 	
-	//team is friendly team
+	/**
+	 * Find cell threatening c, team is friendly team
+	 */
 	private Cell getThreat(Cell c, String team) {
 		int row = c.row;
 		int col = c.col;
@@ -746,9 +806,12 @@ public class Board extends JPanel {
 			return c.getPawnThreat(team, this);
 		}
 		
-		return c;
+		return null;
 	}
-
+	
+	/**
+	 * Move piece at selectedCell to targetCell
+	 */
 	public void moveSelected() {
 		if(targetCell.piece.isOpposingTeam(selectedCell.piece.team)) {
 			a.addOneToCaptured(currentPlayer, targetCell.piece);
@@ -757,5 +820,103 @@ public class Board extends JPanel {
 		selectedCell.movePieceTo( targetCell, this );
 		
 	}
+	
+	/**
+	 * Return array of cells between threat and current player's king
+	 */
+	private Cell[] getPathToKingThreat(Cell threat) {
+		Cell[] res = new Cell[6];
+		int resIndex = 0;
+		String ennemyTeam = currentPlayer == Piece.white? Piece.black : Piece.white;
+		Cell king = getKingLocation(ennemyTeam);
+		System.out.println("getPathToKing: king location ("+king.row+","+king.col+") threat location ("+threat.row+","+threat.col+")");
+		
+		if(threat.piece.type == Piece.rook || threat.piece.type == Piece.queen) {
+			if(threat.row == king.row) {
+				//left, same row
+				if(threat.col < king.col) {
+					
+					for(int i = king.col-1; i > threat.col; i--) {
+						res[resIndex] = board[threat.row][i];
+						resIndex++;
+						
+					}
+					
+				}
+				//right, same row
+				else {
+
+					for(int i = king.col+1; i < threat.col; i++) {
+						res[resIndex] = board[threat.row][i];
+						resIndex++;
+					}
+					
+				}
+			}else if(threat.col== king.col) {
+				//above, same column
+				if(threat.row < king.row) {
+
+					for(int i = king.row-1; i < threat.row; i--) {
+						res[resIndex] = board[i][threat.col];
+						resIndex++;
+					}
+					
+				}
+				//below, same column
+				else {
+
+					for(int i = king.row+1; i < threat.row; i--) {
+						res[resIndex] = board[i][threat.col];
+						resIndex++;
+					}
+					
+				}
+			}
+		}
+		
+		if(threat.piece.type == Piece.bishop || threat.piece.type == Piece.queen) {
+			//top left
+			if(threat.row < king.row && threat.col < king.col) {
+				for(int i = 1; king.row-i > threat.row; i++) {
+					System.out.println("Testing top left at "+ (king.row-i) +","+(king.col-i));
+
+					res[resIndex] = board[king.row-i][king.col-i];
+					resIndex++;
+				}
+			}
+			//top right
+			else if(threat.row < king.row && threat.col > king.col) {
+				for(int i = 1; king.row-i > threat.row; i++) {
+					System.out.println("Testing top right at "+ (king.row-i) +","+(king.col+i));
+					res[resIndex] = board[king.row-i][king.col+i];
+					resIndex++;
+				}
+			}
+			//bottom right
+			else if(threat.row > king.row && threat.col > king.col) {
+				for(int i = 1; king.row+i < threat.row; i++) {
+					res[resIndex] = board[king.row+i][king.col+i];
+					resIndex++;
+				}
+			}
+			//bottom left
+			else if(threat.row > king.row && threat.col < king.col) {
+				for(int i = 1; king.row+i < threat.row; i++) {
+					res[resIndex] = board[king.row+i][king.col-i];
+					resIndex++;
+				}
+			}
+		}
+		if(resIndex != 0) {
+			res = Arrays.copyOfRange(res, 0, resIndex-1);
+		}else {
+			res = new Cell[0];
+		}
+		System.out.println("Path to threat contains "+resIndex+" cells");
+
+		return res;
+		
+	}
+	
 	
 }

@@ -7,6 +7,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class Cell extends JButton{
+	final static Color lightCell = Color.white;
+	final static Color darkCell = Color.GRAY;
 	int row, col;
 	Piece piece;
 	ImageIcon image;
@@ -31,6 +33,12 @@ public class Cell extends JButton{
 		row = c.row;
 		col = c.col;
 		piece = new Piece(c.piece);
+		
+		displayImage();
+		initBackground();
+		
+		setBorder(null);
+		setPreferredSize( new Dimension(70, 70) );
 	}
 	
 	/**
@@ -56,14 +64,14 @@ public class Cell extends JButton{
 	public void initBackground() {
 		if(row%2 == 0) {
 			if(col%2 == 0) {
-				setBackground(Color.WHITE);
+				setBackground(lightCell);
 			}else {
-				setBackground(Color.GRAY);
+				setBackground(darkCell);
 			}
 		}else if (col%2 == 0) {
-			setBackground(Color.GRAY);
+			setBackground(darkCell);
 		}else {
-			setBackground(Color.WHITE);
+			setBackground(lightCell);
 		}
 		
 	}
@@ -134,13 +142,22 @@ public class Cell extends JButton{
 			return;
 		}
 		
+		b.lastBoard = new Board(b);
+		
 		boolean isPawnPromotion = (c.row == 0 && b.currentPlayer == Piece.white && b.selectedCell.piece.type == Piece.pawn) || 
 				(c.row == 7 && b.currentPlayer == Piece.black && b.selectedCell.piece.type == Piece.pawn); 
 		
 		if( isPawnPromotion ) {
+			/*
 			b.gameOver = true;
 			b.a.infoPanel.promotionPanel.setTeam(b.currentPlayer);
 			b.a.infoPanel.promotionPanel.setVisible(true);
+			*/
+			PromotionDialog dialog = new PromotionDialog(b);
+			dialog.setTitle("Pawn promotion for "+b.currentPlayer);
+			dialog.setModal(true);
+			dialog.setResizable(false);
+			dialog.setVisible(true);
 		}else {
 			c.piece = new Piece(piece);
 			c.displayImage();
@@ -197,4 +214,8 @@ public class Cell extends JButton{
 		return this;
 	}
 	
+	
+	public boolean isInitColor() {
+		return getBackground().toString() == Piece.white || getBackground().toString() == Piece.black; 
+	}
 }

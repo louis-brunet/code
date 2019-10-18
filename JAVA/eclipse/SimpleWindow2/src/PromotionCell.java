@@ -1,21 +1,21 @@
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class PromotionCell extends JButton {
 	String type;
 	String team;
+	PromotionDialog dialog;
 	
-	public PromotionCell(String type, Board b){
+	public PromotionCell(String type, Board b, PromotionDialog dialog){
 		this.type = type;
 		this.team = b.currentPlayer;
+		this.dialog = dialog;
 		String iconPath = "src/resources/"+this.team+this.type+".png";
 		
 		setIcon( new ImageIcon(iconPath) );
 		setBorder(null);
+		setBackground(null);
 		setPreferredSize( new Dimension(70, 70) );
 		
 	}
@@ -30,8 +30,7 @@ public class PromotionCell extends JButton {
 		
 		b.updateGameOver();
 		b.nextPlayer();
-		
-		b.a.infoPanel.promotionPanel.setVisible(false);
+		dialog.setVisible(false);
 	}
 	
 	public void updateTeam(String team) {
