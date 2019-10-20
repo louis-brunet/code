@@ -35,7 +35,7 @@ public class Main extends JFrame {
 	 * Create the frame.
 	 */
 	public Main() {
-		currentLevel = new Level( 10 );
+		currentLevel = new Level( 3 );
 		// Set the Level JPanel as the JFrame's content-pane
 		Container cp = getContentPane();
 		cp.add(currentLevel);
@@ -73,13 +73,13 @@ public class Main extends JFrame {
 	          }
 	       });	
 
-	      Thread updateThread = new Thread() {
+	      Thread refreshThread = new Thread() {
 	    	  @Override
 	    	  public void run() {
 	    		  while ( currentLevel.player.isAlive ) {
 	    			while(!currentLevel.isPaused) {
 		    			  currentLevel.updateEnemyPositions();
-		    			  if(currentLevel.oneEnemyLeft()) {
+		    			  if(currentLevel.roundOver()) {
 		    				  currentLevel.pause();
 		    			  }
 		    			  currentLevel.canvas.repaint();
@@ -89,19 +89,19 @@ public class Main extends JFrame {
 		    				  Thread.sleep(REFRESH_DELAY);  // milliseconds
 		    			  } catch (InterruptedException ignore) {}
 	    		  	}
-	    			try {
-	    				  Thread.sleep(100);
-	    			} catch (InterruptedException ignore) {}
-	    			if( currentLevel.oneEnemyLeft() ) {
+	    			if( currentLevel.oneEnemyLeft()&&currentLevel.player.isAlive ) {
 	    				try {
 		    				  Thread.sleep(2000);
 		    			} catch (InterruptedException ignore) {}  
 	    				nextLevel();
 	    			}
+	    			try {
+	    				  Thread.sleep(100);
+	    			} catch (InterruptedException ignore) {}
 	    		  }
 	    	  }
 	      };
-	      updateThread.start(); // called back run()
+	      refreshThread.start(); // called back run()
 	}
 	
 	private void nextLevel() {

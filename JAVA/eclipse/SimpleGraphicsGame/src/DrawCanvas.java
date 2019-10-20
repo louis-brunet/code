@@ -23,11 +23,10 @@ public class DrawCanvas extends JPanel {
 	
 	@Override
     public void paintComponent(Graphics g) {
-       super.paintComponent(g);     // paint parent's background
+       super.paintComponent(g);     // saint parent's background
        setBackground(Color.BLACK);  // set background color for this JPanel
 
-       // Your custom painting codes. For example,
-       // Drawing primitive shapes
+       // Drawing player
        g.setColor(player.color);    // set the drawing color
        g.fillOval((int) player.xMin,(int)  player.yMin,(int)  player.width,(int)  player.height);
        
@@ -38,13 +37,13 @@ public class DrawCanvas extends JPanel {
        }
        
        // Displaying player position
-       g.drawString("Player at "+ player.xMin +", "+ player.yMin +" Speed = "+ Player.speed, 10, 20);
+       g.drawString("Player at "+ player.xMin +", "+ player.yMin +" increment = "+ Player.speed, 10, 20);
        
        if(!player.isAlive) {
     	   g.setColor(Color.RED);
     	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
     	   g.drawString("Game Over :(", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
-       }else if(enemies.size()<2) {
+       }else if(enemies.size()==0) {
     	   g.setColor(Color.RED);
     	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
     	   g.drawString("Round Won !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));

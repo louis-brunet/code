@@ -47,9 +47,17 @@ public class Level extends JPanel{
 		for(int i = 0; i < enemies.size(); i++) {
 			Enemy e = enemies.get(i);
 			if(! player.isCollidingWith(e)) {
-				e.updatePositionChasingToTarget();
-				if(e.isCollidingWithAny(enemies)) {
+				if(oneEnemyLeft()) {
+					e.updatePositionFleeingPlayer();
+				}else {
+					e.updatePositionChasingTarget();	
+				}
+				if(e.isCollidingWithAny(enemies) || e.isOutOfBounds()) {
 					destroyEnemy(e);
+					Enemy collisionTarget = e.getCollisionTarget(enemies);
+					if(collisionTarget != null) {
+						destroyEnemy(collisionTarget);
+					}
 				}
 			}else {
 				player.loseLife();
@@ -75,6 +83,10 @@ public class Level extends JPanel{
 	
 	public boolean oneEnemyLeft() {
 		return ( enemies.size() < 2 );
+	}
+	
+	public boolean roundOver() {
+		return enemies.size() == 0;
 	}
 	
 	public void pause() {

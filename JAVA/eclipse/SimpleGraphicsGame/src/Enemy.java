@@ -75,17 +75,31 @@ public class Enemy {
 		this.yCenter = this.yMin + height/2f;
 	}
 	
-	public void updatePositionChasingToTarget() {
+	public void updatePositionChasingTarget() {
 		// Move e towards player by e.xSpeed and e.ySpeed
-		Random rand = new Random();
+		//Random rand = new Random();
 		//if(rand.nextInt(100)%6 != -1) {
-			setSpeedsChasingTarget();
+		setSpeedsChasingTarget();
 		//}
 		setXMin(xMin + xSpeed);
 		setYMin(yMin + ySpeed);
 		
-		/*
-		// Keep enemy in bounds
+		keepInBounds();
+	}
+	
+	public void updatePositionFleeingPlayer() {
+		setSpeedsChasingTarget();
+		xSpeed *= -1;
+		ySpeed *= -1;
+		
+		setXMin(xMin + xSpeed);
+		setYMin(yMin + ySpeed);
+		
+		keepInBounds();
+	}
+	
+	// Keep enemy in bounds	
+	private void keepInBounds() {
 		if( xMin < 0 ) {
 			setXMin(0);
 		}
@@ -95,11 +109,11 @@ public class Enemy {
 		if( yMin < 0 ) {
 			setYMin(0);
 		}
-		if( yMax > DrawCanvas.CANVAS_WIDTH ) {
-			setYMin(DrawCanvas.CANVAS_WIDTH - height);
-		}*/
+		if( yMax > DrawCanvas.CANVAS_HEIGHT ) {
+			setYMin(DrawCanvas.CANVAS_HEIGHT - height);
+		}
 	}
-
+	
 	public float getYStepPerXTo( float x, float y ) {
 		float res = (y - yCenter)/(x - xCenter);
 		return res;
@@ -110,7 +124,7 @@ public class Enemy {
 		float distToPlayer = (float) Math.sqrt( (xCenter - target.xCenter)*(xCenter - target.xCenter)
 				+ (yCenter - target.yCenter)*(yCenter - target.yCenter) );
 		float totalSpeed = distToPlayer / (Main.REFRESH_DELAY*framesToTarget);		
-		float baseMovement = 2f;		
+		float baseMovement = 3f;		
 		
 		xSpeed = ( ( totalSpeed*totalSpeed ) / ( 1 + ( (yCenter-target.yCenter)*(yCenter-target.yCenter) / ((xCenter-target.xCenter)*(xCenter-target.xCenter) )) ) );
 		xSpeed += baseMovement;
@@ -145,5 +159,24 @@ public class Enemy {
 	 			   && this.yMax > yMin
 	 			   && this.xMin < xMax 
 	 			   && this.xMax > xMin);
+	}
+	
+	/**
+	 * Returns enemy colliding with this enemy, returns null if none found.
+	 * @param enemies
+	 * @return
+	 */
+	public Enemy getCollisionTarget(ArrayList<Enemy> enemies) {
+		for(Enemy e: enemies) {
+			if(isCollidingWith( e.xMin, e.yMin, e.xMax, e.yMax )) {
+				return e;
+			}
+		}
+		return null;
+	}
+	
+	public boolean isOutOfBounds() {
+		return (xMin<0 || xMax>DrawCanvas.CANVAS_WIDTH
+				|| yMin<0 || xMax>DrawCanvas.CANVAS_HEIGHT);
 	}
 }

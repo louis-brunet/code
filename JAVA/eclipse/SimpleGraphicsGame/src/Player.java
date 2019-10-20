@@ -12,8 +12,8 @@ public class Player {
 	boolean isAlive;
 
 	static final float speed = 25f;
-	float width = 30f;
-	float height = 40f;
+	float width = 50f;
+	float height = 50f;
 	
 	/**
 	 * Create a player at the center of the drawing canvas
