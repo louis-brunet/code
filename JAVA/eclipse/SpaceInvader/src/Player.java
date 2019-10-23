@@ -15,20 +15,23 @@ public class Player extends LevelItem {
 	public Player() {
 		itemType = ItemType.PLAYER;
 		sizeModifier = DEFAULT_SIZE_MODIF;
-		width = (int) (( (float) RELATIVE_WIDTH) * sizeModifier);
-		height = (int) (( (float) RELATIVE_HEIGHT) * sizeModifier);
-		xLeft = DrawCanvas.CANVAS_WIDTH/2 - width/2;
-		xRight = xLeft + width;
-			
-		//set y to 8/9th of canvas
-		yTop = 8 * DrawCanvas.CANVAS_HEIGHT/9 - height/2;
-		yBottom = yTop+ height;
-		xCenter = xLeft+ width/2;
-		yCenter = yTop + height/2;
-		
 		color = DEFAULT_P_COLOR;
 		lives = 3;
 		isAlive = true;
+		
+		// Init position
+		width = (int) (( (float) RELATIVE_WIDTH) * sizeModifier);
+		height = (int) (( (float) RELATIVE_HEIGHT) * sizeModifier);
+		
+		xLeft = DrawCanvas.CANVAS_WIDTH/2 - width/2;
+		xRight = xLeft + width;
+			
+			// Set y to 8/9th of canvas
+		yTop = 8 * DrawCanvas.CANVAS_HEIGHT/9 - height/2;
+		yBottom = yTop+ height;
+		
+		xCenter = xLeft+ width/2;
+		yCenter = yTop + height/2;
 		
 		initPositionArrays(RELATIVE_POINTS);
 	}
@@ -43,8 +46,26 @@ public class Player extends LevelItem {
 		}
 	}
 	
+	/**
+	 * Return new projectile based on current position
+	 */
 	public Projectile shootProjectile() {
 		Projectile proj = new Projectile(this);
 		return proj;
+	}
+	
+	/**
+	 * Decrement player's lives by 1
+	 */
+	public void loseLife() {
+		if(lives == 1) {
+			isAlive = false;
+			color = Color.BLACK;
+		}else if(lives == 2) {
+			color = Color.RED;
+		}else if(lives == 3) {
+			color = Color.ORANGE;
+		}
+		lives--;
 	}
 }

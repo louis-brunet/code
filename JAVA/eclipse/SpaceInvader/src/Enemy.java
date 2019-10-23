@@ -16,7 +16,7 @@ public class Enemy extends LevelItem{
 	private static final Color DEFAULT_COLOR_BODY = Color.RED;
 	private static final Color DEFAULT_COLOR_EYES = Color.ORANGE;
 	
-	static int speed = 4;
+	static int speed = 2;
 	int[][] eyePositions;
 	int movementSeed;
 	Color colorEyes;
@@ -27,9 +27,12 @@ public class Enemy extends LevelItem{
 		initAttributes(xLeft, yTop);
 
 		initPositionArrays();
+		
+		System.out.println("initializing enemy xLeft="+this.xLeft+", xRight="+xRight);
 
 		setXLeft(xLeft);
 		setYTop(yTop);
+		System.out.println("initialized enemy xLeft="+this.xLeft+", xRight="+xRight);
 	}
 	
 	public Enemy(int xLeft, int yTop, int sizeModifier) {
@@ -76,22 +79,20 @@ public class Enemy extends LevelItem{
 		int max = 60;
 		int limit = 26; // limit is included in up motion
 		
-		
 		if(movementSeed < limit) {
-			 setYTop( yTop+speed );
-		}else {
 			 setYTop( yTop-speed );
+		}else {
+			 setYTop( yTop+speed );
 		}
 		
 		movementSeed = (movementSeed+1)%(max+1);
-		
 	}
 	
 	public void setYTop( int yTop ) {
 		int offset = this.yTop - yTop;
 		//move eyes
 		for(int i=0; i<eyePositions.length && offset!=0; i++) {
-			eyePositions[i][1] += offset;
+			eyePositions[i][1] -= offset;
 		}
 		super.setYTop(yTop);
 	}
@@ -100,9 +101,9 @@ public class Enemy extends LevelItem{
 		int offset = this.xLeft - xLeft;
 		//move eyes
 		for(int i=0; i<eyePositions.length && offset!=0; i++) {
-			eyePositions[i][0] += offset;
+			eyePositions[i][0] -= offset;
 		}
-		super.setYTop(yTop);
+		super.setXLeft(xLeft);
 	}
 	
 }
