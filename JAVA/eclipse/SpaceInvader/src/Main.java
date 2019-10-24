@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -11,10 +12,11 @@ import javax.swing.border.EmptyBorder;
 
 public class Main extends JFrame {
 
-	private static final int REFRESH_DELAY = 30;
+	protected static final int REFRESH_DELAY = 30;
 	private static final int PROJECTILE_COOLDOWN_FRAMES = 15;
+	private static final int MAX_ROWS = 8;
 	protected static final int enemiesPerRow = 12;
-	protected static final int rows = 4;
+	protected static int rows = 2;
 	private JPanel contentPane;
 	private DrawCanvas canvas;
 	private Player player;
@@ -22,6 +24,7 @@ public class Main extends JFrame {
 	protected int enemyCount;
 	private ArrayList<Projectile> projectiles;
 	private int framesSinceProjectile;
+	private int score;
 
 	/**
 	 * Launch the application.
@@ -54,25 +57,16 @@ public class Main extends JFrame {
 		
 		projectiles = new ArrayList<Projectile>();
 		
-		enemies = new Enemy[rows][enemiesPerRow];
-		enemyCount = rows*enemiesPerRow;
+		initEnemies();
 		
-		int width = (int) ((float) Enemy.BODY_RELATIVE_WIDTH * LevelItem.DEFAULT_SIZE_MODIF);
-		int height = (int) ((float) Enemy.BODY_RELATIVE_HEIGHT * LevelItem.DEFAULT_SIZE_MODIF);
-		for(int i=0; i<rows; i++) {
-			for(int j=0; j<enemiesPerRow; j++) {
-				enemies[i][j] = new Enemy(40+j*(10+width), 100+i*(height+5));
-				if(i%2 == j%2) {
-					enemies[i][j].setColor(Color.magenta);
-				}
-			}
-		}
+		score = 0;
 		
 		DrawCanvas canvas = new DrawCanvas(player, enemies, projectiles);
 		
 		contentPane.add(canvas);
 		pack();
 		
+		// Init player movement and projectile shooting
 		addKeyListener(new KeyAdapter() {
 	          @Override
 	          public void keyPressed(KeyEvent evt) {
@@ -95,50 +89,58 @@ public class Main extends JFrame {
 	          }
 	       });	
 		
+		// Update enemy & projectile positions
 		Thread updateThread = new Thread() {
 			@Override
 			public void run() {
-				while(true) {
-					// Update enemy positions
-					for(int i=0; i<rows; i++) {
-						for(int j=0; j<enemiesPerRow; j++) {
-							if(enemies[i][j] != null) {
-								enemies[i][j].doDefaultMovement();
-							}
-						}
+				while(player.isAlive) {
+					while(enemyCount != 0 && player.isAlive) {
+						// Update enemy positions, shoot enemy projectiles
+						doDefaultEnemiesMovement();
+						
+						// Update projectiles' position, do collisions
+						doDefaultProjectilesMovement();
+						
+						canvas.repaint();
+						  
+						try {
+		    				  Thread.sleep(REFRESH_DELAY);
+		    			} catch (InterruptedException ignore) {}
+						
 					}
-					
-					// Update projectile positions, do collisions
-					for(int i=0; i < projectiles.size(); i++) {
-						Projectile proj = projectiles.get(i);
-						proj.doDefaultMovement();
-						LevelItem collidingItem = proj.doCollisionCheck(player, enemies, projectiles);
-						if(collidingItem != null) {
-							projectiles.remove(proj);
-							System.out.println("Colliding with "+collidingItem.toString());
-							switch(collidingItem.itemType) {
-								case ENEMY:
-									removeEnemy(collidingItem);
-									break;
-								case PLAYER:
-									player.loseLife();
-									break;
-								case PROJECTILE:
-									projectiles.remove(collidingItem);
-									break;
-							}
+					if(player.isAlive) {
+						if(rows < MAX_ROWS) {
+							rows++;
 						}
-					}
-					framesSinceProjectile++;
-					  
-					try {
-	    				  Thread.sleep(REFRESH_DELAY);
-	    			} catch (InterruptedException ignore) {}
-					canvas.repaint();
+						initEnemies();
+						canvas.enemies = enemies;
+						canvas.repaint();
+					}				
 				}
 			}
+			
+			
 		};
 		updateThread.start();
+	}
+	
+	private void initEnemies() {
+		enemies = new Enemy[rows][enemiesPerRow];
+		enemyCount = rows*enemiesPerRow;
+		
+		int width = (int) ((float) Enemy.BODY_RELATIVE_WIDTH * LevelItem.DEFAULT_SIZE_MODIF);
+		int height = (int) ((float) Enemy.BODY_RELATIVE_HEIGHT * LevelItem.DEFAULT_SIZE_MODIF);
+		for(int i=0; i<rows; i++) {
+			for(int j=0; j<enemiesPerRow; j++) {
+				enemies[i][j] = new Enemy(40+j*(8+width), 80+i*(height+4));
+				enemies[i][j].setRow(i);
+				enemies[i][j].setCol(j);
+				if(i%2 == j%2) {
+					enemies[i][j].setColor(Color.PINK);
+					enemies[i][j].setEyeColor(Color.MAGENTA);
+				}
+			}
+		}
 	}
 	
 	private void removeEnemy(LevelItem e) {
@@ -156,4 +158,59 @@ public class Main extends JFrame {
 		}
 	}
 
+	
+	private void doDefaultEnemiesMovement() {
+		Random rand = new Random();
+		for(int i=0; i<rows; i++) {
+			for(int j=0; j<enemiesPerRow; j++) {
+				Enemy currEnemy = enemies[i][j];
+				if(currEnemy != null) {
+					currEnemy.doDefaultMovement();
+					if(currEnemy.isCompletelyOutOfBounds()) {
+						currEnemy = null;
+						enemyCount--;
+					}else if( currEnemy.canShoot(enemies) && rand.nextInt(500) == 0 ){
+						projectiles.add(currEnemy.shootProjectile(player));
+					}
+					
+				}
+			}
+		}
+	}
+	
+	private void doDefaultProjectilesMovement() {
+		for(int i=0; i < projectiles.size(); i++) {
+			Projectile proj = projectiles.get(i);
+			proj.doDefaultMovement();
+			if(proj.isCompletelyOutOfBounds()) {
+				projectiles.remove(proj);
+				System.out.println("Projectile destroyed");
+			}else {
+				LevelItem collidingItem = proj.doCollisionCheck(player, enemies, projectiles);
+				if(collidingItem != null) {
+					System.out.println("Colliding with "+collidingItem.toString());
+					switch(collidingItem.itemType) {
+						case ENEMY:
+							removeEnemy(collidingItem);
+							score += 100;
+							//canvas.setScore(score);
+							break;
+						case PLAYER:
+							player.loseLife();
+							break;
+						case PROJECTILE:
+							if(proj.projType == Projectile.ProjectileType.PLAYER) {
+								score += 50;
+								//canvas.setScore(score);
+							}
+							projectiles.remove(collidingItem);
+							break;
+					}
+					projectiles.remove(proj);
+
+				}
+			}
+		}
+		framesSinceProjectile++;
+	}
 }

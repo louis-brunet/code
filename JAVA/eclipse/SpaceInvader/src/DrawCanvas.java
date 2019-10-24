@@ -14,12 +14,14 @@ public class DrawCanvas extends JPanel {
 	Player player; 
 	Enemy[][] enemies;
 	ArrayList<Projectile> projectiles;
+	String score; // contains current score, 
 
 	
 	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles) {
 		this.player = p;
 		this.enemies = enemies;
 		this.projectiles = projectiles;
+		score = "" + 0;
 		setPreferredSize( new Dimension( CANVAS_WIDTH, CANVAS_HEIGHT ) );
 	}
 	
@@ -30,9 +32,9 @@ public class DrawCanvas extends JPanel {
 
        // Drawing player
        drawItem(g, player);
-       g.drawLine(0, player.yCenter, CANVAS_WIDTH, player.yCenter);
+       //g.drawLine(0, player.yCenter, CANVAS_WIDTH, player.yCenter);
        
-       // Drawing enemies and displaying enemyCount
+       // Drawing enemies
        for(int i=0; i<enemies.length; i++) {
 	       for(Enemy e: enemies[i]) {
 	           if(e!=null) {
@@ -48,15 +50,21 @@ public class DrawCanvas extends JPanel {
        }
        
        
-       /*
+       
        if(!player.isAlive) {
+    	   g.setColor(Color.GREEN);
+    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
+    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
+       }else {
+    	   g.setColor(Color.WHITE);
+    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 24));
+    	   g.drawString(score, (CANVAS_WIDTH/2) - 10, 20);
+       }
+       
+       /*else if(==0) {
     	   g.setColor(Color.RED);
     	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
-    	   g.drawString("Game Over :(", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
-       }else if(enemies.==0) {
-    	   g.setColor(Color.RED);
-    	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
-    	   g.drawString("Round Won !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
+    	   g.drawString("Wave cleared !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
        }*/
        
     }
@@ -75,9 +83,8 @@ public class DrawCanvas extends JPanel {
 	
 	private void drawEnemy(Graphics g, Enemy e) {
 		// Draw body
-		/*g.setColor(e.color);
-        g.fillPolygon(e.xpoints, e.ypoints, e.npoints);*/
 		drawItem(g, e);
+		
         // Draw eyes
         g.setColor(e.colorEyes);
         g.fillRect(e.eyePositions[0][0], e.eyePositions[0][1], (int) e.sizeModifier, (int) e.sizeModifier);
@@ -91,5 +98,9 @@ public class DrawCanvas extends JPanel {
         g.drawLine(item.xRight, item.yTop, item.xRight, item.yBottom);
         g.drawLine(item.xLeft, item.yTop, item.xRight, item.yTop);
         g.drawLine(item.xLeft, item.yBottom, item.xRight, item.yBottom);*/
+	}
+	
+	public void setScore(int score) {
+		this.score = "" + score;
 	}
 }

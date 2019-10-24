@@ -92,4 +92,11 @@ public abstract class LevelItem {
 	 			   && xRight > item.xLeft);
 	}
 	
+	protected boolean isCompletelyOutOfBounds() {
+		return (yBottom < 0
+				|| yTop > DrawCanvas.CANVAS_HEIGHT
+				|| xRight < 0
+				|| xLeft > DrawCanvas.CANVAS_WIDTH);
+	}
+	
 }

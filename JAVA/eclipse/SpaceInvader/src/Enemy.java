@@ -20,6 +20,7 @@ public class Enemy extends LevelItem{
 	int[][] eyePositions;
 	int movementSeed;
 	Color colorEyes;
+	private int row, col;
 	
 	
 	public Enemy(int xLeft, int yTop) {
@@ -44,6 +45,26 @@ public class Enemy extends LevelItem{
 		setXLeft(xLeft);
 		setYTop(yTop);
 		
+	}
+	
+	public int getRow() {
+		return row;
+	}
+
+	public void setRow(int row) {
+		this.row = row;
+	}
+
+	public int getCol() {
+		return col;
+	}
+
+	public void setCol(int col) {
+		this.col = col;
+	}
+
+	public void setEyeColor(Color color) {
+		this.colorEyes = color;
 	}
 	
 	private void initAttributes(int xLeft, int yTop) {
@@ -90,7 +111,7 @@ public class Enemy extends LevelItem{
 	
 	public void setYTop( int yTop ) {
 		int offset = this.yTop - yTop;
-		//move eyes
+		// move eyes
 		for(int i=0; i<eyePositions.length && offset!=0; i++) {
 			eyePositions[i][1] -= offset;
 		}
@@ -105,5 +126,26 @@ public class Enemy extends LevelItem{
 		}
 		super.setXLeft(xLeft);
 	}
+	
+	// returns true if this enemy can shoot (i.e. is bottom-most enemy in col in enemies)
+	public boolean canShoot(Enemy[][] enemies) {
+		for(int row = this.row+1; row < enemies.length; row++) {
+			if(enemies[row][this.col] != null) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Return new projectile based on current enemy position, 
+	 * set xSpeed and ySpeed towards current player position.
+	 */
+	public Projectile shootProjectile(Player player) {
+		Projectile proj = new Projectile(this, player);
+		return proj;
+	}
+	
 	
 }
