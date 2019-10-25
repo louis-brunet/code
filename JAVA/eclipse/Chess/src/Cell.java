@@ -5,10 +5,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 
 public class Cell extends JButton{
-	final static Color lightCell = Color.white;
-	final static Color darkCell = Color.GRAY;
+	final static Color lightCell = Color.getHSBColor(37f/360f, 0.15f, 0.85f);
+	final static Color darkCell = Color.getHSBColor(37f/360f, 0.4f, 0.4f);
 	int row, col;
 	Piece piece;
 	ImageIcon image;
@@ -148,14 +149,10 @@ public class Cell extends JButton{
 				(c.row == 7 && b.currentPlayer == Piece.black && b.selectedCell.piece.type == Piece.pawn); 
 		
 		if( isPawnPromotion ) {
-			/*
-			b.gameOver = true;
-			b.a.infoPanel.promotionPanel.setTeam(b.currentPlayer);
-			b.a.infoPanel.promotionPanel.setVisible(true);
-			*/
 			PromotionDialog dialog = new PromotionDialog(b);
-			dialog.setTitle("Pawn promotion for "+b.currentPlayer);
+			dialog.setTitle(b.currentPlayer+" pawn promotion");
 			dialog.setModal(true);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setResizable(false);
 			dialog.setVisible(true);
 		}else {

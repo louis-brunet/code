@@ -60,7 +60,7 @@ public class Player extends LevelItem {
 	public void loseLife() {
 		if(lives == 1) {
 			isAlive = false;
-			color = Color.BLACK;
+			//color = Color.BLACK;
 		}else if(lives == 2) {
 			color = Color.RED;
 		}else if(lives == 3) {

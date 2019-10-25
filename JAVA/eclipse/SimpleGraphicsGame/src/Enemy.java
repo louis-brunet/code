@@ -3,11 +3,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Enemy {
-	static final float width = 20f;
-	static final float height = 20f;
+	static final float width = 10f;
+	static final float height = 10f;
 	static final float defaultSpeed = 2f;
 	static final float framesToTarget = 3f;
 	static final float targetSpeed = 5f;
+	float baseMovement = 4f;		
 	Color color = Color.CYAN;
 	
 	Player target;
@@ -30,11 +31,9 @@ public class Enemy {
 	public Enemy(Player p, float x, float y, int ref) {
 		this.ref = ref;
 		target = p; 
-		xSpeed = defaultSpeed;
-		ySpeed = defaultSpeed;
 		isAggressive = false;
 		initPosition(x, y);
-
+		setSpeedsChasingTarget();
 	}
 	
 	/**
@@ -50,7 +49,7 @@ public class Enemy {
 		//ySpeed = speed;
 		isAggressive = true;
 		initPosition(x, y);
-
+		setSpeedsChasingTarget();
 	}
 	
 	private void initPosition(float xCenter, float yCenter) {
@@ -60,7 +59,6 @@ public class Enemy {
 		xMax = xMin + width;
 		yMin = yCenter - width/2f;
 		yMax = yMin + height;
-		setSpeedsChasingTarget();
 	}
 
 	private void setXMin( float xMin) {
@@ -124,7 +122,6 @@ public class Enemy {
 		float distToPlayer = (float) Math.sqrt( (xCenter - target.xCenter)*(xCenter - target.xCenter)
 				+ (yCenter - target.yCenter)*(yCenter - target.yCenter) );
 		float totalSpeed = distToPlayer / (Main.REFRESH_DELAY*framesToTarget);		
-		float baseMovement = 3f;		
 		
 		xSpeed = ( ( totalSpeed*totalSpeed ) / ( 1 + ( (yCenter-target.yCenter)*(yCenter-target.yCenter) / ((xCenter-target.xCenter)*(xCenter-target.xCenter) )) ) );
 		xSpeed += baseMovement;

@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 public class Main extends JFrame {
 
 	public static final int REFRESH_DELAY = 50;
+	private static final int INIT_ENEMY_COUNT = 7;
 	private DrawCanvas canvas;
 	private Level currentLevel;
 
@@ -35,7 +36,10 @@ public class Main extends JFrame {
 	 * Create the frame.
 	 */
 	public Main() {
-		currentLevel = new Level( 3 );
+		currentLevel = new Level( INIT_ENEMY_COUNT );
+		canvas = new DrawCanvas( currentLevel.player, currentLevel.enemies, currentLevel.pwrUp);
+		currentLevel.setCanvas(canvas);
+		
 		// Set the Level JPanel as the JFrame's content-pane
 		Container cp = getContentPane();
 		cp.add(currentLevel);
@@ -107,6 +111,7 @@ public class Main extends JFrame {
 	private void nextLevel() {
 		remove(currentLevel);
 		currentLevel = new Level ( currentLevel.initEnemyCount + 1 ) ;
+		currentLevel.setCanvas(canvas);
 		add(currentLevel);
 		revalidate();
 	}

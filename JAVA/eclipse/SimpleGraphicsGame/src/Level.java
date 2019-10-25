@@ -11,6 +11,8 @@ public class Level extends JPanel{
 	public ArrayList<Enemy> enemies;
 	public DrawCanvas canvas;
 	public boolean isPaused;
+	public PowerUp pwrUp;
+	
 	/**
 	 * Create new level with count enemies
 	 * @param count
@@ -19,6 +21,8 @@ public class Level extends JPanel{
 		player = new Player();
 		isPaused = false;
 		initEnemyCount = count;
+		pwrUp = new PowerUp(PowerUp.pwrUpType.SMALL, player);
+		
 		// Setting enemies for this level
 		enemies = new ArrayList<Enemy>();
 		Random rand = new Random();
@@ -26,7 +30,7 @@ public class Level extends JPanel{
 			float x = rand.nextFloat() * DrawCanvas.CANVAS_WIDTH;
 			float y = rand.nextFloat() * DrawCanvas.CANVAS_HEIGHT;
 			
-			Enemy createdEnemy = new Enemy(player, x, y, i, 5f);
+			Enemy createdEnemy = new Enemy(player, x, y, i, 5.0f);
 			
 			if(player.isCollidingWith(createdEnemy) || createdEnemy.isCollidingWithAny(enemies)) {
 				i--;
@@ -34,30 +38,28 @@ public class Level extends JPanel{
 				enemies.add( createdEnemy );
 			}
 		}
-		
-		// Creating canvas with created player and enemies
-		canvas = new DrawCanvas(player, enemies);
+		/*
+		// Creating canvas with created player, enemies, and powerup
+		canvas = new DrawCanvas(player, enemies, pwrUp);
 		add(canvas);
-		
-	    
-		      
+		  */    
 	}
 	
 	public void updateEnemyPositions() {
 		for(int i = 0; i < enemies.size(); i++) {
 			Enemy e = enemies.get(i);
 			if(! player.isCollidingWith(e)) {
-				if(oneEnemyLeft()) {
-					e.updatePositionFleeingPlayer();
-				}else {
-					e.updatePositionChasingTarget();	
-				}
 				if(e.isCollidingWithAny(enemies) || e.isOutOfBounds()) {
 					destroyEnemy(e);
 					Enemy collisionTarget = e.getCollisionTarget(enemies);
 					if(collisionTarget != null) {
 						destroyEnemy(collisionTarget);
 					}
+				}
+				if(oneEnemyLeft()) {
+					e.updatePositionFleeingPlayer();
+				}else {
+					e.updatePositionChasingTarget();	
 				}
 			}else {
 				player.loseLife();
@@ -91,5 +93,11 @@ public class Level extends JPanel{
 	
 	public void pause() {
 		isPaused = true;
+	}
+	
+	public void setCanvas(DrawCanvas canvas) {
+		this.canvas = canvas;
+		this.canvas.reset(player, enemies, pwrUp);
+		add(canvas);
 	}
 }

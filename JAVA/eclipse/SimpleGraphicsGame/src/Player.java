@@ -38,6 +38,13 @@ public class Player {
 	 			   && xMax > e.xMin);
 	}
 	
+	public boolean isCollidingWith(PowerUp powerUp) {
+		return (yMin < powerUp.yMax
+	 			   && yMax > powerUp.yMin
+	 			   && xMin < powerUp.xMax 
+	 			   && xMax > powerUp.xMin);
+	}
+	
 	/**
 	 * Decrement player's lives by 1
 	 */
@@ -73,11 +80,53 @@ public class Player {
 		this.xMin = xMin;
 		this.xMax = this.xMin + width;
 		this.xCenter = this.xMin + width/2f;
+		keepInBounds();
 	}
 	
 	private void setYMin( float yMin) {
 		this.yMin = yMin;
 		this.yMax = this.yMin + height;
 		this.yCenter = this.yMin + height/2f;
+		keepInBounds();
+	}
+	
+	private void setWidth( float w ) {
+		width = w;
+		setXMin(xMin);
+	}
+	
+	private void setHeight( float h ) {
+		height = h;
+		setYMin(yMin);
+	}
+	
+	// Keep enemy in bounds	
+	private void keepInBounds() {
+		if( xMin < 0 ) {
+			setXMin(0);
+		}
+		if( xMax > DrawCanvas.CANVAS_WIDTH ) {
+			setXMin(DrawCanvas.CANVAS_WIDTH - width);
+		}
+		if( yMin < 0 ) {
+			setYMin(0);
+		}
+		if( yMax > DrawCanvas.CANVAS_HEIGHT ) {
+			setYMin(DrawCanvas.CANVAS_HEIGHT - height);
+		}
+	}
+	
+	public void applyPowerUp( PowerUp pwrUp ) {
+		switch(pwrUp.type) {
+			case SMALL:
+				setWidth(width/4.0f);
+				setHeight(height/4.0f);
+				
+				height = height/4;
+				break;
+			case INVINCIBLE:
+				
+				break;
+		}
 	}
 }

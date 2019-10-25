@@ -169,7 +169,7 @@ public class Main extends JFrame {
 					if(currEnemy.isCompletelyOutOfBounds()) {
 						currEnemy = null;
 						enemyCount--;
-					}else if( currEnemy.canShoot(enemies) && rand.nextInt(500) == 0 ){
+					}else if( currEnemy.canShoot(enemies) && rand.nextInt(400) == 0 ){
 						projectiles.add(currEnemy.shootProjectile(player));
 					}
 					

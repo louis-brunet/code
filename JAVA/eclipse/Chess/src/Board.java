@@ -9,10 +9,12 @@ public class Board extends JPanel {
 	Application a; //application context
 	Cell[][] board;
 	String currentPlayer;
+	String startingPlayer;
 	Cell selectedCell;
 	Cell targetCell;
 	boolean gameOver;
 	Board lastBoard;
+	
 	
 	public Board(Application a) {
 		initBoard();
@@ -26,9 +28,11 @@ public class Board extends JPanel {
 	public Board(Board b) {
 		setLayout( new GridLayout(8, 8) );
 		
+		currentPlayer = b.currentPlayer;
+		startingPlayer = b.startingPlayer;
 		board = new Cell[8][8];
 		lastBoard = b.lastBoard;
-		currentPlayer = b.currentPlayer;
+		a = b.a;
 		
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
@@ -36,13 +40,14 @@ public class Board extends JPanel {
 				Cell currCell = board[i][j];
 
 				if(b.targetCell != null && i == b.targetCell.row && j == b.targetCell.col) {
-					targetCell = currCell;
+					this.targetCell = currCell;
 				}else if(b.selectedCell != null && i == b.selectedCell.row && j == b.selectedCell.col) {
-					selectedCell = currCell;
+					this.selectedCell = currCell;
+					currCell.setBackground(Color.YELLOW);
 				}else if(b.targetCell == null){
-					targetCell = null;
+					this.targetCell = null;
 				}else if(b.selectedCell == null){
-					selectedCell = null;
+					this.selectedCell = null;
 				}
 				
 				add(currCell);
@@ -54,7 +59,7 @@ public class Board extends JPanel {
 	}
 	
 	/**
-	* Copy  board b, move piece at firstCell to targetCell
+	* Copy  board b, move piece at firstCell to targetCell, never seen by user
 	*/
 	public Board(Board b, Cell firstCell, Cell targetCell) {
 		setLayout( new GridLayout(8, 8) );
@@ -92,6 +97,7 @@ public class Board extends JPanel {
 		board = new Cell[8][8];
 		
 		currentPlayer = Piece.white;
+		startingPlayer = currentPlayer;
 		selectedCell = null;
 		targetCell = null;
 		lastBoard = null;
@@ -591,13 +597,20 @@ public class Board extends JPanel {
 				for(int i=0; i<threatPath.length; i++) {
 					Cell potentialPawnCell = currentPlayer == Piece.white ? board[threatPath[i].row+1][threatPath[i].col] : board[threatPath[i].row-1][threatPath[i].col];
 					boolean pawnCanBlock = (potentialPawnCell.piece.type == Piece.pawn) && potentialPawnCell.piece.isSameTeam(currentPlayer);
-					if( isThreatened(threatPath[i], ennemyTeam) || pawnCanBlock ) {
+					boolean otherPieceCanBlock = (isThreatened(threatPath[i], currentPlayer) && getThreat(threatPath[i], currentPlayer).piece.type != Piece.king);
+					if( otherPieceCanBlock || pawnCanBlock ) {
+						System.out.println("Threat is blockable at "+threatPath[i].row+", "+threatPath[i].col+" by "+getThreat(threatPath[i], currentPlayer).row+", "+getThreat(threatPath[i], currentPlayer).col);
 						threatIsBlockable = true;
 					}
 				}
 				
-				if(!isThreatened(threat, currentPlayer) && !threatIsBlockable) {//TODO: ADD CHECK TO SEE IF ANY CURRENTPLAYER PIECES CAN GET IN THE WAY OF THREAT
+				//
+				if(!isThreatened(threat, currentPlayer) && !threatIsBlockable) {
 					gameOver = true;
+					NewGameDialog dialog = new NewGameDialog(currentPlayer, a);
+					dialog.setLocationRelativeTo(a);
+					dialog.setVisible(true);
+					
 				}else {
 					Cell threat2 = getThreat(threat, currentPlayer );
 					System.out.println("Found threat to threat at "+threat2.row+", "+threat2.col);
@@ -630,7 +643,9 @@ public class Board extends JPanel {
 		}else {
 			currentPlayer = Piece.white;
 		}
-		selectedCell.initBackground();
+		if(selectedCell!=null) {
+			selectedCell.initBackground();
+		}
 		selectedCell = null;
 	}
 	
@@ -814,7 +829,11 @@ public class Board extends JPanel {
 	 */
 	public void moveSelected() {
 		if(targetCell.piece.isOpposingTeam(selectedCell.piece.team)) {
-			a.addOneToCaptured(currentPlayer, targetCell.piece);
+			System.out.println("Trying to add captured piece at "  + targetCell.row);
+			a.addOneToCaptured(currentPlayer,targetCell.piece);
+		}else {
+			a.sidePanel.getInfoPanel(currentPlayer).noPieceAdded();
+			//TODO set currentPlayer's pieceaddedlastturn to null
 		}
 	
 		selectedCell.movePieceTo( targetCell, this );
