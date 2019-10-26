@@ -14,15 +14,28 @@ public class DrawCanvas extends JPanel {
 	Player player; 
 	Enemy[][] enemies;
 	ArrayList<Projectile> projectiles;
-	String score; // contains current score, 
+	Bunker[] bunkers;
+	String score; 
+	int enemyCount;
 
 	
-	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles) {
+	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
 		this.player = p;
 		this.enemies = enemies;
 		this.projectiles = projectiles;
-		score = "" + 0;
+		this.score = "" + 0;
+		this.enemyCount = -1;// initialised on first frame refresh
+		this.bunkers = bunkers;
 		setPreferredSize( new Dimension( CANVAS_WIDTH, CANVAS_HEIGHT ) );
+	}
+	
+	public void resetItems(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
+		this.player = p;
+		this.enemies = enemies;
+		this.projectiles = projectiles;
+		this.score = "" + 0;
+		this.enemyCount = -1;// initialised on first frame refresh
+		this.bunkers = bunkers;
 	}
 	
 	@Override
@@ -42,44 +55,40 @@ public class DrawCanvas extends JPanel {
 	           }
 	       }
        }
-       //g.drawString(""+enemyCount, (CANVAS_WIDTH/2)-100 , 50);
-       
+
        // Drawing projectiles
        for(Projectile proj: projectiles) {
     	   drawItem(g, proj);
        }
-       
-       
-       
-       if(!player.isAlive) {
-    	   g.setColor(Color.GREEN);
-    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
-    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
-       }else {
-    	   g.setColor(Color.WHITE);
-    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 24));
-    	   g.drawString(score, (CANVAS_WIDTH/2) - 10, 20);
+       // Drawing bunkers
+       for(Bunker bunker: bunkers) {
+    	   if(bunker != null) {
+    		   drawItem(g, bunker);
+    	   }
        }
        
-       /*else if(==0) {
+       if(!player.isAlive) {
+    	   g.setFont( new Font(Font.MONOSPACED, Font.PLAIN, 22));
+    	   g.setColor(Color.WHITE); 
+    	   g.drawString("Play again ? [SPACE]", (CANVAS_WIDTH/2)-120 , 77);
+    	   
+    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
+    	   g.setColor(Color.GREEN);
+    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-70 , 42);
+       }else {
+    	   g.setColor(Color.WHITE);
+       }
+       
+	   g.setFont( new Font(Font.DIALOG, Font.BOLD, 24));
+	   g.drawString("Score : "+score, 10, CANVAS_HEIGHT - 10);
+
+       if(enemyCount==0) {
     	   g.setColor(Color.RED);
     	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
     	   g.drawString("Wave cleared !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
-       }*/
+       }
        
     }
-	
-	/*
-	public static float getRandomHeightInBounds() {
-		Random rand = new Random();
-		return rand.nextFloat()*CANVAS_HEIGHT;
-	}
-	
-	public static float getRandomWidthInBounds() {
-		Random rand = new Random();
-		return rand.nextFloat()*CANVAS_WIDTH;
-	}
-	*/
 	
 	private void drawEnemy(Graphics g, Enemy e) {
 		// Draw body
@@ -102,5 +111,9 @@ public class DrawCanvas extends JPanel {
 	
 	public void setScore(int score) {
 		this.score = "" + score;
+	}
+
+	public void setEnemyCount(int enemyCount) {
+		this.enemyCount = enemyCount;
 	}
 }

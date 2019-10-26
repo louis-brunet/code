@@ -79,7 +79,7 @@ public class Projectile extends LevelItem {
 	}
 	
 	// Returns null if not colliding, else returns collision target
-	public LevelItem doCollisionCheck(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles) {
+	public LevelItem doCollisionCheck(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
 		for(Projectile proj: projectiles) {
 			if(this!=proj && isCollidingWith(proj) ) {
 				return proj;
@@ -98,6 +98,11 @@ public class Projectile extends LevelItem {
 		} else if(projType == ProjectileType.ENEMY) {
 			if(isCollidingWith(p)) {
 				return p;
+			}
+			for(Bunker b: bunkers) {
+				if(b != null && isCollidingWith(b)) {
+					return b;
+				}
 			}
 		}
 		

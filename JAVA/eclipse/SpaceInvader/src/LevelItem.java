@@ -2,7 +2,7 @@ import java.awt.Color;
 
 public abstract class LevelItem {
 	protected static final float DEFAULT_SIZE_MODIF = 5f;
-	enum ItemType {PLAYER,ENEMY,PROJECTILE}
+	enum ItemType {PLAYER,ENEMY,PROJECTILE,BUNKER}
 	
 	protected ItemType itemType;
 	protected Color color;
@@ -74,7 +74,7 @@ public abstract class LevelItem {
 		}
 	}
 	
-	// Init xpoints and ypoints based on template relative points (1 unit = sizeModifier pixels)
+	// Init xpoints and ypoints based on template relative points, xLeft and yTop (1 unit = sizeModifier pixels)
 	protected void initPositionArrays(int[][] relativePoints) {
 		npoints = relativePoints.length;
 		xpoints= new int[npoints];
@@ -93,8 +93,8 @@ public abstract class LevelItem {
 	}
 	
 	protected boolean isCompletelyOutOfBounds() {
-		return (yBottom < 0
-				|| yTop > DrawCanvas.CANVAS_HEIGHT
+		return (yTop > DrawCanvas.CANVAS_HEIGHT
+				|| yBottom < 0
 				|| xRight < 0
 				|| xLeft > DrawCanvas.CANVAS_WIDTH);
 	}
