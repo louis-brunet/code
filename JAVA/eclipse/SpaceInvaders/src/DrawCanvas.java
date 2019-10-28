@@ -8,8 +8,8 @@ import java.util.Random;
 import javax.swing.JPanel;
 
 public class DrawCanvas extends JPanel {
-	static final int CANVAS_WIDTH = 850;
-	static final int CANVAS_HEIGHT= 950;
+	static final int CANVAS_WIDTH = 1300;
+	static final int CANVAS_HEIGHT= 1050;
 	
 	Player player; 
 	Enemy[][] enemies;
@@ -20,16 +20,11 @@ public class DrawCanvas extends JPanel {
 
 	
 	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
-		this.player = p;
-		this.enemies = enemies;
-		this.projectiles = projectiles;
-		this.score = "" + 0;
-		this.enemyCount = -1;// initialised on first frame refresh
-		this.bunkers = bunkers;
+		setItems(p, enemies, projectiles, bunkers);
 		setPreferredSize( new Dimension( CANVAS_WIDTH, CANVAS_HEIGHT ) );
 	}
 	
-	public void resetItems(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
+	public void setItems(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
 		this.player = p;
 		this.enemies = enemies;
 		this.projectiles = projectiles;
@@ -70,7 +65,7 @@ public class DrawCanvas extends JPanel {
        if(!player.isAlive) {
     	   g.setFont( new Font(Font.MONOSPACED, Font.PLAIN, 22));
     	   g.setColor(Color.WHITE); 
-    	   g.drawString("Play again ? [SPACE]", (CANVAS_WIDTH/2)-120 , 77);
+    	   g.drawString("Play again ? [ENTER]", (CANVAS_WIDTH/2)-120 , 77);
     	   
     	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
     	   g.setColor(Color.GREEN);

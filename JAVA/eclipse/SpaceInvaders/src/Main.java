@@ -18,7 +18,7 @@ public class Main extends JFrame {
 	private static final int PROJECTILE_COOLDOWN_FRAMES = 15;
 	private static final int MAX_ROWS = 8;
 	private static final int FIRST_WAVE_ROWS = 2;
-	protected static final int enemiesPerRow = 12;
+	protected static final int enemiesPerRow = 13;
 	protected static int rows = 2;
 	private JPanel contentPane;
 	private DrawCanvas canvas;
@@ -72,7 +72,8 @@ public class Main extends JFrame {
 		
 		contentPane.add(canvas);
 		pack();
-		
+		setLocationRelativeTo(null);
+
 		/**
 		 * Init player movement and projectile shooting
 		 */
@@ -95,14 +96,14 @@ public class Main extends JFrame {
 		                	}
 		                	break;
 		        	  }
-	        	  }else if(evt.getKeyCode()== KeyEvent.VK_SPACE) {
+	        	  }else if(evt.getKeyCode()== KeyEvent.VK_ENTER) {
 	        		  player = new Player();
 	        		  projectiles = new ArrayList<Projectile>();
 	        		  rows = FIRST_WAVE_ROWS;
 	        		  initEnemies();
 	        		  initBunkers();
 	        		  score = 0;
-	        		  canvas.resetItems(player, enemies, projectiles, bunkers);
+	        		  canvas.setItems(player, enemies, projectiles, bunkers);
 	        	  }
 	          }
 	       });	

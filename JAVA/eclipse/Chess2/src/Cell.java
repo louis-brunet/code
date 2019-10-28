@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -46,8 +47,12 @@ public class Cell extends JButton{
 	 * Set button icon to piece png
 	 */
 	public void displayImage() {
-		image = new ImageIcon(piece.iconPath);
-		setIcon(image);	
+		URL url = Application.class.getResource(piece.iconPath);
+		System.out.println("Trying to init icon : "+url);
+		if(url!=null) {
+			image = new ImageIcon( url );
+			setIcon(image);	
+		}
 	}
 	
 	/**

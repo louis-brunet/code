@@ -1,7 +1,7 @@
 import java.awt.Color;
 
 public abstract class LevelItem {
-	protected static final float DEFAULT_SIZE_MODIF = 5f;
+	protected static final float DEFAULT_SIZE_MODIF = 8f;
 	enum ItemType {PLAYER,ENEMY,PROJECTILE,BUNKER}
 	
 	protected ItemType itemType;

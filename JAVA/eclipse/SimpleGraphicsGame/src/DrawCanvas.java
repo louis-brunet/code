@@ -45,23 +45,6 @@ public class DrawCanvas extends JPanel {
     		   (int) pwrUp.width, (int) pwrUp.height, 
     		   (int) pwrUp.width/2, (int) pwrUp.height/2);
        
-       int pointsBody[][] = {{0,1}, {0,4}, {1,4}, {1,5}, {2,5}, {2,6}, {3,6}, {3,7},
-    		   {2,7}, {2,8}, {3,8}, {3,7}, {4,7}, {4,6}, {7,6}, {7,7}, {8,7}, 
-    		   {8,8}, {9,8}, {9,7}, {8,7}, {8,6}, {9,6}, {9,5}, {10,5}, {10,4}, 
-    		   {11,4}, {11,1}, {10,1}, {10,3}, {9,3}, {9,1}, {8,1}, {8,0}, {6,0}, 
-    		   {6,1}, {8,1}, {8,2}, {3,2}, {3,1}, {5,1}, {5,0}, {3,0}, {3,1}, {2,1},
-    		   {2,3}, {1,3}, {1,1}, {0,1}};
-       int npoints = pointsBody.length;
-       int xpoints[] = new int[npoints]; 
-       int ypoints[] = new int[npoints]; 
-       int sizeModifier = 10;
-       
-       for(int i=npoints - 1, index = 0; i>=0; i--, index++) {
-    	   xpoints[index] = 20+sizeModifier*pointsBody[i][0];
-    	   ypoints[index] = 20+sizeModifier*(8-pointsBody[i][1]);
-       }
-       
-       g.fillPolygon(xpoints, ypoints, npoints);
        
        // Displaying player position
        g.drawString("Player at "+ player.xMin +", "+ player.yMin +" increment = "+ Player.speed+" lives = "+player.lives, 10, 20);

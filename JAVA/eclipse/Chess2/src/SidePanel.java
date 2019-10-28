@@ -28,8 +28,8 @@ public class SidePanel extends JPanel {
 		whiteInfoPanel = new TeamCapturedPiecesPanel("White");
 		contentPanel = new JPanel();
 		btnPanel = new JPanel();
-		resetBtn = new JButton( new ImageIcon("src/resources/reset.png") );
-		undoBtn = new JButton( new ImageIcon("src/resources/undo.png") );
+		resetBtn = new JButton( new ImageIcon(Application.class.getResource("/resources/reset.png")) );
+		undoBtn = new JButton( new ImageIcon(Application.class.getResource("/resources/undo.png")) );
 		linkedBoard = b;
 		
 		scorePanel = new ScorePanel();

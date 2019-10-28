@@ -55,7 +55,7 @@ public class Piece {
 	
 	private void initPath() {
 		if(type != "" && type != "") {
-			iconPath = "src/resources/"+team+type+".png" ;
+			iconPath = "/resources/"+team+type+".png" ;
 		}else {
 			iconPath = "";
 		}

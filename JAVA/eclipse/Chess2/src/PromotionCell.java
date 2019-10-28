@@ -1,4 +1,6 @@
 import java.awt.Dimension;
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -11,9 +13,14 @@ public class PromotionCell extends JButton {
 		this.type = type;
 		this.team = b.currentPlayer;
 		this.dialog = dialog;
-		String iconPath = "src/resources/"+this.team+this.type+".png";
+		String iconPath = "/resources/"+this.team+this.type+".png";
 		
-		setIcon( new ImageIcon(iconPath) );
+		URL url = Application.class.getResource(iconPath);
+		System.out.println("Trying to init promotion icon : "+url);
+
+		if(url!=null) {
+			setIcon( new ImageIcon(url) );
+		}
 		setBorder(null);
 		setBackground(Cell.lightCell);
 		setPreferredSize( new Dimension(70, 70) );

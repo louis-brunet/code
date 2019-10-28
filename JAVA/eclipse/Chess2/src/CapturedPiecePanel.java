@@ -1,3 +1,5 @@
+import java.net.URL;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -38,9 +40,12 @@ public class CapturedPiecePanel extends JPanel {
 	}
 	
 	public void initLabel(String team, String type){
-		String iconPath = "src/resources/"+team+type+".png" ;
-		ImageIcon ii = new ImageIcon(iconPath);
-		countLabel = new JLabel(ii, JLabel.CENTER);
+		String iconPath = "/resources/"+team+type+".png" ;
+		URL url = Application.class.getResource(iconPath);
+		if(url!=null) {
+			ImageIcon ii = new ImageIcon(url);
+			countLabel = new JLabel(ii, JLabel.CENTER);
+		}
 	}
 
 }
