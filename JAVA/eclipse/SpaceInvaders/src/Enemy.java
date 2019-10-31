@@ -16,9 +16,9 @@ public class Enemy extends LevelItem{
 	private static final Color DEFAULT_COLOR_BODY = Color.RED;
 	private static final Color DEFAULT_COLOR_EYES = Color.ORANGE;
 	
-	static int speed = 2;
+	private static int speed = 2;
 	int[][] eyePositions;
-	int movementSeed;
+	private int movementSeed;
 	Color colorEyes;
 	private int row, col;
 	
@@ -95,10 +95,10 @@ public class Enemy extends LevelItem{
 	    }
 	}
 	
-	// Do basic enemy up and down motion: seed in [0;10]->move up, seed in [10;22]->move down
+	// Do basic enemy up and down motion: seed in [0;limit]->move down, seed in [limit;max]->move down
 	public void doDefaultMovement() {
 		int max = 60;
-		int limit = 26; // limit is included in up motion
+		int limit = 25; // limit is included in down motion
 		
 		if(movementSeed < limit) {
 			 setYTop( yTop-speed );

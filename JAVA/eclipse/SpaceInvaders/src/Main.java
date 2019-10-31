@@ -18,7 +18,7 @@ public class Main extends JFrame {
 	private static final int PROJECTILE_COOLDOWN_FRAMES = 15;
 	private static final int MAX_ROWS = 8;
 	private static final int FIRST_WAVE_ROWS = 2;
-	protected static final int enemiesPerRow = 13;
+	protected static final int enemiesPerRow = 11;
 	protected static int rows = 2;
 	private JPanel contentPane;
 	private DrawCanvas canvas;
@@ -182,15 +182,17 @@ public class Main extends JFrame {
 	}
 	
 	private void initBunkers() {
-		int width = (int) ((float) Bunker.RELATIVE_WIDTH * LevelItem.DEFAULT_SIZE_MODIF);
-		int height = (int) ((float) Bunker.RELATIVE_HEIGHT * LevelItem.DEFAULT_SIZE_MODIF);
+		float width = ((float) Bunker.RELATIVE_WIDTH * LevelItem.DEFAULT_SIZE_MODIF * Bunker.BUNKER_SIZE_MODIFIER);
+		int height = (int) ((float) Bunker.RELATIVE_HEIGHT * LevelItem.DEFAULT_SIZE_MODIF * Bunker.BUNKER_SIZE_MODIFIER);
 		int bunkerHeight = player.yTop - height - 80;
+		int numBunkers = 4;
+		int drawingWidth = (int) (DrawCanvas.CANVAS_WIDTH - 2f*width) / ( numBunkers - 1 );//(int) (width*2f) ;// includes empty space between bunkers
 		
-		int numBunkers = ( DrawCanvas.CANVAS_WIDTH / (width * 3) ) + 1;
+		//int numBunkers = ( DrawCanvas.CANVAS_WIDTH / drawingWidth ) ;
 		bunkers = new Bunker[ numBunkers ];
 		
 		for(int i = 0; i < numBunkers; i++) {
-			int newXLeft = (width/2) + i*width*3;
+			int newXLeft = (int) (width/2) + i*drawingWidth;
 			bunkers[i] = new Bunker( newXLeft , bunkerHeight);
 		}
 		
@@ -259,22 +261,31 @@ public class Main extends JFrame {
 						case ENEMY:
 							removeEnemy(collidingItem);
 							score += 100;
-							//canvas.setScore(score);
+							projectiles.remove(proj);
 							break;
 						case PLAYER:
 							player.loseLife();
+							projectiles.remove(proj);
 							break;
 						case PROJECTILE:
 							// TODO: don't increment if two enemy projectiles collide
 							score += 50;
 							projectiles.remove(collidingItem);
+							projectiles.remove(proj);
 							break;
 						case BUNKER:
+							Bunker b = (Bunker) collidingItem;
 							if(proj.projType == Projectile.ProjectileType.ENEMY) {
-								doBunkerCollision(collidingItem);
+								if(doBunkerCollision(b, proj)) {
+									projectiles.remove(proj);
+									
+									if(! (b.hasLeft || b.hasTop || b.hasRight) ) {
+										removeBunker(b);
+									}
+								};
 							}
 					}
-					projectiles.remove(proj);
+					
 
 				}
 			}
@@ -282,14 +293,23 @@ public class Main extends JFrame {
 		framesSinceProjectile++;
 	}
 	
-	private void doBunkerCollision(LevelItem bunker) {
+	/**
+	 * Returns true if proj destroyed one of bunker's areas
+	 * @param bunker
+	 * @param proj
+	 * @return
+	 */
+	private boolean doBunkerCollision(LevelItem bunker, Projectile proj) {
 		for(Bunker b: bunkers) {
 			if(b != null && b.equals(bunker)) {
-				b.loseLife();
+				/*b.loseLife();
 				if(! b.isAlive) {
 					removeBunker(bunker);
-				}
+				}*/
+				
+				return b.doCollision(proj);
 			}
 		}
+		return false;
 	}
 }

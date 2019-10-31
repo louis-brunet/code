@@ -7,16 +7,19 @@ import java.util.Random;
 
 import javax.swing.JPanel;
 
+
 public class DrawCanvas extends JPanel {
-	static final int CANVAS_WIDTH = 1300;
+	static final int CANVAS_WIDTH = 890;
 	static final int CANVAS_HEIGHT= 1050;
+	boolean drawHitboxes = false;
 	
 	Player player; 
 	Enemy[][] enemies;
 	ArrayList<Projectile> projectiles;
 	Bunker[] bunkers;
-	String score; 
-	int enemyCount;
+	private String score; 
+	private String lives;
+	private int enemyCount;
 
 	
 	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
@@ -97,11 +100,27 @@ public class DrawCanvas extends JPanel {
 	
 	private void drawItem(Graphics g, LevelItem item) {
 		g.setColor(item.color);
-        g.fillPolygon(item.xpoints, item.ypoints, item.npoints);
-        /*g.drawLine(item.xLeft, item.yTop, item.xLeft, item.yBottom);
-        g.drawLine(item.xRight, item.yTop, item.xRight, item.yBottom);
-        g.drawLine(item.xLeft, item.yTop, item.xRight, item.yTop);
-        g.drawLine(item.xLeft, item.yBottom, item.xRight, item.yBottom);*/
+        
+		if(item.itemType == LevelItem.ItemType.BUNKER) {
+			Bunker b = (Bunker) item;
+			if(b.hasLeft) {
+				g.fillPolygon(b.xpointsLeft, b.ypointsLeft, b.npointsSides);
+			}
+			if(b.hasRight) {
+				g.fillPolygon(b.xpointsRight, b.ypointsRight, b.npointsSides);
+			}
+			if(b.hasTop) {
+				g.fillPolygon(b.xpointsTop, b.ypointsTop, b.npointsTop);
+			}
+		}else {
+			g.fillPolygon(item.xpoints, item.ypoints, item.npoints);
+		}
+		if(drawHitboxes) {
+			g.drawLine(item.xLeft, item.yTop, item.xLeft, item.yBottom);
+	        g.drawLine(item.xRight, item.yTop, item.xRight, item.yBottom);
+	        g.drawLine(item.xLeft, item.yTop, item.xRight, item.yTop);
+	        g.drawLine(item.xLeft, item.yBottom, item.xRight, item.yBottom);
+		}
 	}
 	
 	public void setScore(int score) {
