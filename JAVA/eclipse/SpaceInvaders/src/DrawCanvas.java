@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 
 public class DrawCanvas extends JPanel {
 	static final int CANVAS_WIDTH = 890;
-	static final int CANVAS_HEIGHT= 1050;
-	boolean drawHitboxes = false;
+	static final int CANVAS_HEIGHT = 1050;
+	private static final boolean drawHitboxes = false;
 	
 	Player player; 
 	Enemy[][] enemies;
@@ -115,6 +115,7 @@ public class DrawCanvas extends JPanel {
 		}else {
 			g.fillPolygon(item.xpoints, item.ypoints, item.npoints);
 		}
+		
 		if(drawHitboxes) {
 			g.drawLine(item.xLeft, item.yTop, item.xLeft, item.yBottom);
 	        g.drawLine(item.xRight, item.yTop, item.xRight, item.yBottom);

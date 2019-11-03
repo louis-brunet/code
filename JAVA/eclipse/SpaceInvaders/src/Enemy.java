@@ -29,11 +29,9 @@ public class Enemy extends LevelItem{
 
 		initPositionArrays();
 		
-		System.out.println("initializing enemy xLeft="+this.xLeft+", xRight="+xRight);
-
 		setXLeft(xLeft);
 		setYTop(yTop);
-		System.out.println("initialized enemy xLeft="+this.xLeft+", xRight="+xRight);
+		System.out.println("initializing enemy xLeft="+this.xLeft+", xRight="+xRight);
 	}
 	
 	public Enemy(int xLeft, int yTop, int sizeModifier) {
