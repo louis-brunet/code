@@ -576,8 +576,8 @@ public class Board extends JPanel {
 	
 	public void updateGameOver() {
 		gameOver = false;
-		String ennemyTeam = currentPlayer == Piece.white ? Piece.black : Piece.white;
-		Cell ennemyKing = getKingLocation( ennemyTeam );
+		String enemyTeam = currentPlayer == Piece.white ? Piece.black : Piece.white;
+		Cell enemyKing = getKingLocation( enemyTeam );
 		
 		for(int i = 0; i<board.length; i++) {
 			for(int j = 0; j<board[i].length; j++) {
@@ -585,21 +585,28 @@ public class Board extends JPanel {
 			}
 		}
 		
-		if( isThreatened(ennemyKing, ennemyKing.piece.team) ){
-			setPossibleMoves(ennemyKing);
-			Cell threat = getThreat(ennemyKing, ennemyKing.piece.team);
-			if(!ennemyKing.canMove) {
+		if( isThreatened(enemyKing, enemyKing.piece.team) ){
+			setPossibleMoves(enemyKing);
+			Cell threat = getThreat(enemyKing, enemyKing.piece.team);
+			if(!enemyKing.canMove) {
 				System.out.println("Found threat at "+threat.row+", "+threat.col);
 				
 				Cell[] threatPath = getPathToKingThreat(threat);
 				boolean threatIsBlockable = false;
 				
 				for(int i=0; i<threatPath.length; i++) {
-					Cell potentialPawnCell = currentPlayer == Piece.white ? board[threatPath[i].row+1][threatPath[i].col] : board[threatPath[i].row-1][threatPath[i].col];
-					boolean pawnCanBlock = (potentialPawnCell.piece.type == Piece.pawn) && potentialPawnCell.piece.isSameTeam(currentPlayer);
-					boolean otherPieceCanBlock = (isThreatened(threatPath[i], currentPlayer) && getThreat(threatPath[i], currentPlayer).piece.type != Piece.king);
+					Cell potentialPawnCell = currentPlayer == Piece.white ? 
+							board[threatPath[i].row+1][threatPath[i].col]: 
+							board[threatPath[i].row-1][threatPath[i].col];
+							
+					boolean pawnCanBlock = (potentialPawnCell.piece.type == Piece.pawn) && 
+							potentialPawnCell.piece.isSameTeam(enemyTeam);
+					boolean otherPieceCanBlock = (isThreatened(threatPath[i], currentPlayer) && 
+							getThreat(threatPath[i], currentPlayer).piece.type != Piece.king);
+							
 					if( otherPieceCanBlock || pawnCanBlock ) {
-						System.out.println("Threat is blockable at "+threatPath[i].row+", "+threatPath[i].col+" by "+getThreat(threatPath[i], currentPlayer).row+", "+getThreat(threatPath[i], currentPlayer).col);
+						System.out.println("Threat is blockable at "+threatPath[i].row+
+								", "+threatPath[i].col);
 						threatIsBlockable = true;
 					}
 				}
@@ -897,7 +904,7 @@ public class Board extends JPanel {
 			//top left
 			if(threat.row < king.row && threat.col < king.col) {
 				for(int i = 1; king.row-i > threat.row; i++) {
-					System.out.println("Testing top left at "+ (king.row-i) +","+(king.col-i));
+					System.out.println("top left at "+ (king.row-i) +","+(king.col-i));
 
 					res[resIndex] = board[king.row-i][king.col-i];
 					resIndex++;
@@ -906,7 +913,7 @@ public class Board extends JPanel {
 			//top right
 			else if(threat.row < king.row && threat.col > king.col) {
 				for(int i = 1; king.row-i > threat.row; i++) {
-					System.out.println("Testing top right at "+ (king.row-i) +","+(king.col+i));
+					System.out.println("top right at "+ (king.row-i) +","+(king.col+i));
 					res[resIndex] = board[king.row-i][king.col+i];
 					resIndex++;
 				}
@@ -935,6 +942,16 @@ public class Board extends JPanel {
 
 		return res;
 		
+	}
+	
+	/**
+	 * Show possiblemove markers on c's already set possibleMoves
+	 * @param c
+	 */
+	protected void displayPossibleMoves(Cell c) {
+		for(int i=0; i < c.possibleMoves.length; i++) {
+			board[c.possibleMoves[i][0]][c.possibleMoves[i][1]].setBackground(Color.GRAY);;
+		}
 	}
 	
 	

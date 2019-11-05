@@ -95,16 +95,17 @@ public class Cell extends JButton{
 					//case where player selects starting cell
 					if( piece.team == b.currentPlayer ) {
 						//re-initialise old selected piece background if another starting piece is chosen
-						if( b.selectedCell != null ) {
+						/*if( b.selectedCell != null ) {
 							b.selectedCell.initBackground();
-						}
+						}*/
+						//new selected piece
 						setBackground(Color.YELLOW);
 						b.selectedCell = clickedCell;
-						
+						b.setPossibleMoves(clickedCell);
+						b.displayPossibleMoves(clickedCell);
 					}
 					//case where player selects target cell
 					else if( b.selectedCell != null && !(clickedCell.piece.isSameTeam(b.selectedCell.piece))) {
-						b.setPossibleMoves(b.selectedCell);
 						if ( b.selectedCell.canMoveTo( clickedCell, b )) {
 							Cell friendlyKing = b.getKingLocation(b.currentPlayer);
 							if( b.isThreatened(friendlyKing, b.currentPlayer) ) {
