@@ -99,10 +99,12 @@ public class Projectile extends LevelItem {
 			if(isCollidingWith(p)) {
 				return p;
 			}
-			for(Bunker b: bunkers) {
-				if(b != null && isCollidingWith(b)) {
-					return b;
-				}
+			
+		}
+		
+		for(Bunker b: bunkers) {
+			if(b != null && isCollidingWith(b)) {
+				return b;
 			}
 		}
 		

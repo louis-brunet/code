@@ -96,7 +96,7 @@ public class Enemy extends LevelItem{
 	// Do basic enemy up and down motion: seed in [0;limit]->move down, seed in [limit;max]->move down
 	public void doDefaultMovement() {
 		int max = 60;
-		int limit = 25; // limit is included in down motion
+		int limit = 20; // limit is included in down motion
 		
 		if(movementSeed < limit) {
 			 setYTop( yTop-speed );
@@ -133,7 +133,8 @@ public class Enemy extends LevelItem{
 			}
 		}
 		
-		return true;
+		boolean isAbovePlayer = yBottom < (Player.RELATIVE_Y_POS * (float) DrawCanvas.CANVAS_HEIGHT);
+		return isAbovePlayer;
 	}
 	
 	/**

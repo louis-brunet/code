@@ -6,6 +6,7 @@ public class Player extends LevelItem {
 	static final int RELATIVE_WIDTH = 12;
 	static final int RELATIVE_HEIGHT = 5;
 	static final Color DEFAULT_P_COLOR = Color.GREEN;
+	static final float RELATIVE_Y_POS = 8f/9f;
 	
 	final int speed = 25;
 	
@@ -27,7 +28,7 @@ public class Player extends LevelItem {
 		xRight = xLeft + width;
 			
 			// Set y to 8/9th of canvas
-		yTop = 8 * DrawCanvas.CANVAS_HEIGHT/9 - height/2;
+		yTop = (int) (RELATIVE_Y_POS * (float) DrawCanvas.CANVAS_HEIGHT - height/2);
 		yBottom = yTop+ height;
 		
 		xCenter = xLeft+ width/2;
@@ -67,5 +68,7 @@ public class Player extends LevelItem {
 			color = Color.ORANGE;
 		}
 		lives--;
+		
+		System.out.println("Lost one life");
 	}
 }

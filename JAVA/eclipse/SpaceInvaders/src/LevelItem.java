@@ -92,11 +92,51 @@ public abstract class LevelItem {
 	 			   && xRight > item.xLeft);
 	}
 	
+	/**
+	 * Collision detection with the smallest rectangle containing given polygon
+	 * @param xpoints
+	 * @param ypoints
+	 * @return 
+	 */
+	protected boolean isCollidingWith(int[] xpoints, int[] ypoints) {
+		int xLeftPolygon = xpoints[0];
+		int xRightPolygon = xpoints[1];
+		int yTopPolygon = ypoints[0];
+		int yBottomPolygon = ypoints[1];
+		
+		for(int i: xpoints) {
+			if(xLeftPolygon > i) {
+				xLeftPolygon = i;
+			}
+			if(xRightPolygon < i) {
+				xRightPolygon = i;
+			}
+		}
+		
+		for(int i: ypoints) {
+			if(yTopPolygon > i) {
+				yTopPolygon = i;
+			}
+			if(yBottomPolygon < i) {
+				yBottomPolygon = i;
+			}
+		}
+		
+		return (yTop < yBottomPolygon
+	 			   && yBottom > yTopPolygon
+	 			   && xLeft< xRightPolygon
+	 			   && xRight > xLeftPolygon);
+	}
+	
 	protected boolean isCompletelyOutOfBounds() {
-		return (yTop > DrawCanvas.CANVAS_HEIGHT
+		if (yTop > DrawCanvas.CANVAS_HEIGHT
 				|| yBottom < 0
 				|| xRight < 0
-				|| xLeft > DrawCanvas.CANVAS_WIDTH);
+				|| xLeft > DrawCanvas.CANVAS_WIDTH) {
+			System.out.println(this.toString()+" is out of bounds");
+			return true;
+		}
+		return false;
 	}
 	
 }

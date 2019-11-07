@@ -9,8 +9,8 @@ import javax.swing.JPanel;
 
 
 public class DrawCanvas extends JPanel {
-	static final int CANVAS_WIDTH = 890;
-	static final int CANVAS_HEIGHT = 1050;
+	static final int CANVAS_WIDTH = 880;
+	static final int CANVAS_HEIGHT = 920;
 	private static final boolean drawHitboxes = false;
 	
 	Player player; 
@@ -21,8 +21,15 @@ public class DrawCanvas extends JPanel {
 	private String lives;
 	private int enemyCount;
 
+	protected int xMouse;
+	protected int yMouse;
+	protected float xRelative; // 0.0f to 1.0f
+	protected float yRelative; 
 	
 	public DrawCanvas(Player p, Enemy[][] enemies, ArrayList<Projectile> projectiles, Bunker[] bunkers) {
+		xMouse = -1;
+		yMouse = -1;
+		
 		setItems(p, enemies, projectiles, bunkers);
 		setPreferredSize( new Dimension( CANVAS_WIDTH, CANVAS_HEIGHT ) );
 	}
@@ -68,23 +75,34 @@ public class DrawCanvas extends JPanel {
        if(!player.isAlive) {
     	   g.setFont( new Font(Font.MONOSPACED, Font.PLAIN, 22));
     	   g.setColor(Color.WHITE); 
-    	   g.drawString("Play again ? [ENTER]", (CANVAS_WIDTH/2)-120 , 77);
+    	   g.drawString("Play again ? [ENTER]", (CANVAS_WIDTH/2)-124 , 117);
     	   
     	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
-    	   g.setColor(Color.GREEN);
-    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-70 , 42);
-       }else {
-    	   g.setColor(Color.WHITE);
-       }
-       
-	   g.setFont( new Font(Font.DIALOG, Font.BOLD, 24));
-	   g.drawString("Score : "+score, 10, CANVAS_HEIGHT - 10);
+    	   g.setColor(Color.RED);
+    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-80 , 42);
+    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 24));
+    	   g.drawString("Score : "+score, (CANVAS_WIDTH/2)-80 , 77);
 
-       if(enemyCount==0) {
+       }else if(enemyCount==0) {
     	   g.setColor(Color.RED);
     	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
     	   g.drawString("Wave cleared !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
        }
+       
+       // Draw score
+       g.setColor(Color.WHITE);
+	   g.setFont( new Font(Font.DIALOG, Font.BOLD, 24));
+	   g.drawString("Score : "+score, 10, CANVAS_HEIGHT - 10);
+
+	   // Draw cursor position
+	   if(xMouse != -1) {
+		   g.setFont( new Font(Font.MONOSPACED, Font.PLAIN, 16));
+		   g.drawString("( "+xMouse+", "+yMouse+" )", 5, 21);
+		   g.drawString("( "+xRelative+", "+yRelative+" )", 5, 40);
+	   }
+       
+	   
+       
        
     }
 	

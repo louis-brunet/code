@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,7 +16,7 @@ import javax.swing.border.EmptyBorder;
 public class Main extends JFrame {
 
 	protected static final int REFRESH_DELAY = 30;
-	private static final int WAVE_CLEAR_DELAY = 2000;
+	private static final int WAVE_CLEAR_DELAY = 2000; // milliseconds
 	private static final int PROJECTILE_COOLDOWN_FRAMES = 15;
 	private static final int MAX_ROWS = 8;
 	private static final int FIRST_WAVE_ROWS = 2;
@@ -29,7 +31,7 @@ public class Main extends JFrame {
 	private Bunker[] bunkers;
 	private int framesSinceProjectile;
 	private int score;
-
+	
 	/**
 	 * Launch the application.
 	 */
@@ -51,29 +53,61 @@ public class Main extends JFrame {
 	 */
 	public Main() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
-		//contentPane.setBorder(new EmptyBorder(2, 2, 2, 2));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
 		player = new Player();
-		
 		projectiles = new ArrayList<Projectile>();
 		
 		rows = FIRST_WAVE_ROWS;
 		initEnemies();
-		
 		initBunkers();
-		
 		score = 0;
-		
 		canvas = new DrawCanvas(player, enemies, projectiles, bunkers);
 		
 		contentPane.add(canvas);
 		pack();
 		setLocationRelativeTo(null);
+		
+		/**
+		 * display cursor position on click
+		 */
+		canvas.addMouseListener( new MouseListener() {
 
+			@Override
+			public void mouseClicked(MouseEvent evt) {
+				canvas.xMouse = evt.getX();
+				canvas.yMouse = evt.getY();
+				canvas.xRelative = (float) canvas.xMouse / (float) DrawCanvas.CANVAS_WIDTH;
+				canvas.yRelative = (float) canvas.yMouse / (float) DrawCanvas.CANVAS_HEIGHT;
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		/**
 		 * Init player movement and projectile shooting
 		 */
@@ -234,9 +268,21 @@ public class Main extends JFrame {
 				Enemy currEnemy = enemies[i][j];
 				if(currEnemy != null) {
 					currEnemy.doDefaultMovement();
+					
+					//check if enemy is colliding with any bunker area
+					for(Bunker b: bunkers) {
+						if(b != null && b.doCollision(currEnemy)) {
+							removeEnemy(currEnemy);
+						}
+					}
+					
+					if(currEnemy.isCollidingWith(player)) {
+						player.loseLife();
+						removeEnemy(currEnemy);
+					}
 					if(currEnemy.isCompletelyOutOfBounds()) {
-						currEnemy = null;
-						enemyCount--;
+						removeEnemy(currEnemy);
+						player.loseLife();
 					}else if( currEnemy.canShoot(enemies) && rand.nextInt(400) == 0 ){
 						projectiles.add(currEnemy.shootProjectile(player));
 					}
@@ -275,15 +321,15 @@ public class Main extends JFrame {
 							break;
 						case BUNKER:
 							Bunker b = (Bunker) collidingItem;
-							if(proj.projType == Projectile.ProjectileType.ENEMY) {
-								if(doBunkerCollision(b, proj)) {
-									projectiles.remove(proj);
-									
+							if(doBunkerCollision(b, proj)) {
+								if(proj.projType == Projectile.ProjectileType.ENEMY) {	
 									if(! (b.hasLeft || b.hasTop || b.hasRight) ) {
 										removeBunker(b);
 									}
-								};
-							}
+								}
+								projectiles.remove(proj);
+							}	
+							
 					}
 					
 
@@ -302,11 +348,6 @@ public class Main extends JFrame {
 	private boolean doBunkerCollision(LevelItem bunker, Projectile proj) {
 		for(Bunker b: bunkers) {
 			if(b != null && b.equals(bunker)) {
-				/*b.loseLife();
-				if(! b.isAlive) {
-					removeBunker(bunker);
-				}*/
-				
 				return b.doCollision(proj);
 			}
 		}

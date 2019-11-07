@@ -1,7 +1,7 @@
 import java.awt.Color;
 
 public class Bunker extends LevelItem {
-	private static final int[][] RELATIVE_POINTS = { {0,3},{1,1},{5,0},{9,1},{10,3},{9,7},{7,8},{7,4},{5,3},{3,4},{3,8},{1,7},{0,3} };
+	//private static final int[][] RELATIVE_POINTS = { {0,3},{1,1},{5,0},{9,1},{10,3},{9,7},{7,8},{7,4},{5,3},{3,4},{3,8},{1,7},{0,3} };
 			/*{{0,3},{1,2},{4,0},{8,0},{11,2},{12,3},
 			{11,7},{8,6},{8,4},{7,3},{5,3},{4,4},{4,6},{1,7},{0,3}};*/
 	protected static final int RELATIVE_WIDTH = 10;
@@ -12,7 +12,7 @@ public class Bunker extends LevelItem {
 	private static final int[][] TOP_RELATIVE_POINTS = {{1,1},{5,0},{9,1},{7,4},{3,4},{1,1}};
 	private static final int[][] RIGHT_RELATIVE_POINTS = {{7,4},{9,1},{10,3},{9,7},{7,8},{7,4}};
 	
-	static final float BUNKER_SIZE_MODIFIER = 1.1f;
+	static final float BUNKER_SIZE_MODIFIER = 1f;
 	
 	//int lives;
 	//boolean isAlive;
@@ -93,22 +93,50 @@ public class Bunker extends LevelItem {
 	public boolean doCollision(Projectile proj) {
 		int xProjRelative = (int) ((float)(proj.xLeft - xLeft) / sizeModifier);
 		int yProjRelative = (int) ((float)(proj.yTop - yTop) / sizeModifier);
+		boolean isPlayerProj = (proj.projType != Projectile.ProjectileType.PLAYER);
+		System.out.println("collision with bunker: isplayerproj="+isPlayerProj);
 		
 		switch(getCollisionArea(xProjRelative, yProjRelative)) {
 			case 0:
-				hasLeft = false;
+				hasLeft = !isPlayerProj;
 				break;
 			case 1:
-				hasTop = false;
+				hasTop = !isPlayerProj;
 				break;
 			case 2:
-				hasRight = false;
+				hasRight = !isPlayerProj;
 				break;
 			case -1:
 				return false;
 		}
 		return true;
 		
+	}
+	
+	/**
+	 * Destroy the third of the bunker hit by enemy projectile at given collision point
+	 * @param xCol
+	 * @param yCol
+	 * @return true if an area has been destroyed
+	 */
+	public boolean doCollision(Enemy e) {
+		if(isCollidingWith(e)) {
+			if(hasTop && e.isCollidingWith(xpointsTop, ypointsTop)) {
+				hasTop = false;
+				return true;
+			}
+			
+			if(hasLeft && e.isCollidingWith(xpointsLeft, ypointsLeft)) {
+				hasLeft = false;
+				return true;
+			}
+			
+			if(hasRight && e.isCollidingWith(xpointsRight, ypointsRight)) {
+				hasRight= false;
+				return true;
+			} 
+		}
+		return false;
 	}
 
 	/**
@@ -117,26 +145,26 @@ public class Bunker extends LevelItem {
 	 * @param yProj in points
 	 * @return areaNum  0, 1, 2 or -1 if not colliding with any remaining areas
 	 */
-	private int getCollisionArea(int xProjRelative, int yProjRelative) {
+	private int getCollisionArea(int xRelative, int yRelative) {
 		int areaNum = -1;
 		
-		if(yProjRelative < 1) {
+		if(yRelative < 1) {
 			if(hasTop) {
 				areaNum = 1;
 			}
 		}
-		if( (xProjRelative < 1) || (!hasTop && xProjRelative < 3) ) {
+		if( (xRelative < 1) || (!hasTop && xRelative < 3) ) {
 			if(hasLeft) {
 				areaNum = 0;
 			}
 		}
-		if( (xProjRelative > 9) || (!hasTop && xProjRelative > 5)  ) {
+		if( (xRelative > 9) || (!hasTop && xRelative > 5)  ) {
 			if(hasRight) {
 				areaNum = 2;
 			}
 		}
 		
-		System.out.println("Enemy proj collided with "+this.toString()+"'s area "+areaNum);
+		System.out.println("collision with "+this.toString()+"'s area "+areaNum);
 		return areaNum;
 	}
 }
