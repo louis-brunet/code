@@ -7,11 +7,14 @@ public class Player extends LevelItem {
 	static final int RELATIVE_HEIGHT = 5;
 	static final Color DEFAULT_P_COLOR = Color.GREEN;
 	static final float RELATIVE_Y_POS = 8f/9f;
+	static final int MAX_SPEED = 20;
 	
-	final int speed = 25;
+	float speed = 0f;
+	float speedGoal = 0f;
 	
 	int lives;
 	boolean isAlive;
+	boolean isShooting;
 
 	public Player() {
 		itemType = ItemType.PLAYER;
@@ -19,6 +22,7 @@ public class Player extends LevelItem {
 		color = DEFAULT_P_COLOR;
 		lives = 3;
 		isAlive = true;
+		isShooting = false;
 		
 		// Init position
 		width = (int) (( (float) RELATIVE_WIDTH) * sizeModifier);
@@ -52,6 +56,7 @@ public class Player extends LevelItem {
 	 */
 	public Projectile shootProjectile() {
 		Projectile proj = new Projectile(this);
+		proj.color = color;
 		return proj;
 	}
 	

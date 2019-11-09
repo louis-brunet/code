@@ -17,7 +17,7 @@ public class Main extends JFrame {
 
 	protected static final int REFRESH_DELAY = 30;
 	private static final int WAVE_CLEAR_DELAY = 2000; // milliseconds
-	private static final int PROJECTILE_COOLDOWN_FRAMES = 15;
+	private static final int PROJECTILE_COOLDOWN_FRAMES = 12;
 	private static final int MAX_ROWS = 8;
 	private static final int FIRST_WAVE_ROWS = 2;
 	protected static final int enemiesPerRow = 11;
@@ -32,6 +32,7 @@ public class Main extends JFrame {
 	private int framesSinceProjectile;
 	private int score;
 	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -41,6 +42,7 @@ public class Main extends JFrame {
 				try {
 					Main frame = new Main();
 					frame.setVisible(true);
+					frame.setResizable(false);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -118,16 +120,15 @@ public class Main extends JFrame {
 	        	  if(player.isAlive) {
 	        		  switch(evt.getKeyCode()) {
 		        	  	case KeyEvent.VK_LEFT:  
-		        	  		player.setXLeft(player.xLeft - player.speed);  
+		        	  		//player.setXLeft(player.xLeft - player.speed);  
+		        	  		player.speedGoal = -1 * Player.MAX_SPEED;
 		        	  		break;
 		                case KeyEvent.VK_RIGHT:	
-		                	player.setXLeft(player.xLeft + player.speed);
+		                	//player.setXLeft(player.xLeft + player.speed);
+		                	player.speedGoal = Player.MAX_SPEED;
 		                	break;
 		                case KeyEvent.VK_SPACE:
-		                	if(framesSinceProjectile > PROJECTILE_COOLDOWN_FRAMES) {
-		                		projectiles.add(player.shootProjectile());
-		                		framesSinceProjectile = 0;
-		                	}
+		                	player.isShooting = true;
 		                	break;
 		        	  }
 	        	  }else if(evt.getKeyCode()== KeyEvent.VK_ENTER) {
@@ -140,6 +141,21 @@ public class Main extends JFrame {
 	        		  canvas.setItems(player, enemies, projectiles, bunkers);
 	        	  }
 	          }
+	          
+	          @Override
+	          public void keyReleased(KeyEvent evt) {
+	        	  System.out.println("key released");
+	        	  if(player.isAlive  ) {
+	        		  if(evt.getKeyCode() == KeyEvent.VK_LEFT && player.speedGoal == -1.0f*Player.MAX_SPEED) {
+	        			  player.speedGoal = 0;
+	        		  }else if(evt.getKeyCode() == KeyEvent.VK_RIGHT && player.speedGoal == Player.MAX_SPEED) {
+	        			  player.speedGoal = 0;
+	        		  }
+	        	  }
+	        	  if(evt.getKeyCode() == KeyEvent.VK_SPACE) {
+	        		  player.isShooting= false;
+	        	  }
+	          }
 	       });	
 		
 		/**
@@ -150,6 +166,8 @@ public class Main extends JFrame {
 			public void run() {
 				while(/*player.isAlive*/true) {
 					while(enemyCount != 0 && player.isAlive) {
+						doPlayerMovement();
+						
 						// Update enemy positions, shoot enemy projectiles
 						doDefaultEnemiesMovement();
 						
@@ -165,11 +183,13 @@ public class Main extends JFrame {
 		    			} catch (InterruptedException ignore) {}
 						
 					}	
+					//All enemies are dead
 					if(player.isAlive) {
 						int framesSinceWaveCleared = 0;
 						while (framesSinceWaveCleared < (WAVE_CLEAR_DELAY/REFRESH_DELAY)) {
 							framesSinceWaveCleared++;
 							doDefaultProjectilesMovement();
+							doPlayerMovement();
 							canvas.setScore(score);
 							canvas.repaint();
 							try {
@@ -220,13 +240,13 @@ public class Main extends JFrame {
 		int height = (int) ((float) Bunker.RELATIVE_HEIGHT * LevelItem.DEFAULT_SIZE_MODIF * Bunker.BUNKER_SIZE_MODIFIER);
 		int bunkerHeight = player.yTop - height - 80;
 		int numBunkers = 4;
-		int drawingWidth = (int) (DrawCanvas.CANVAS_WIDTH - 2f*width) / ( numBunkers - 1 );//(int) (width*2f) ;// includes empty space between bunkers
+		int drawingWidth = (int) (DrawCanvas.CANVAS_WIDTH - 1.6f*width) / ( numBunkers - 1 );//(int) (width*2f) ;// includes empty space between bunkers
 		
 		//int numBunkers = ( DrawCanvas.CANVAS_WIDTH / drawingWidth ) ;
 		bunkers = new Bunker[ numBunkers ];
 		
 		for(int i = 0; i < numBunkers; i++) {
-			int newXLeft = (int) (width/2) + i*drawingWidth;
+			int newXLeft = (int) (width/3) + i*drawingWidth;
 			bunkers[i] = new Bunker( newXLeft , bunkerHeight);
 		}
 		
@@ -340,6 +360,23 @@ public class Main extends JFrame {
 	}
 	
 	/**
+	 * Do player movement and shooting each frame
+	 */
+	private void doPlayerMovement() {
+		// Update player position
+		float speedStep = (float) REFRESH_DELAY / 20f;
+		player.speed =  approach(player.speedGoal, player.speed, speedStep);
+		int newXLeft = (int) (player.xLeft + player.speed);
+		player.setXLeft( newXLeft );
+		
+		// Do player shooting
+		if(player.isShooting && framesSinceProjectile > PROJECTILE_COOLDOWN_FRAMES) {
+    		projectiles.add(player.shootProjectile());
+    		framesSinceProjectile = 0;
+    	}
+	}
+	
+	/**
 	 * Returns true if proj destroyed one of bunker's areas
 	 * @param bunker
 	 * @param proj
@@ -352,5 +389,18 @@ public class Main extends JFrame {
 			}
 		}
 		return false;
+	}
+	
+	private float approach(float goal, float current, float dt) {
+		float difference = goal - current;
+		
+		if(difference > dt) {
+			return current + dt;
+		}
+		if(difference < -1*dt) {
+			return current - dt;
+		}
+		
+		return goal;
 	}
 }

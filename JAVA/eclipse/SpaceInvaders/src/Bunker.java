@@ -12,7 +12,7 @@ public class Bunker extends LevelItem {
 	private static final int[][] TOP_RELATIVE_POINTS = {{1,1},{5,0},{9,1},{7,4},{3,4},{1,1}};
 	private static final int[][] RIGHT_RELATIVE_POINTS = {{7,4},{9,1},{10,3},{9,7},{7,8},{7,4}};
 	
-	static final float BUNKER_SIZE_MODIFIER = 1f;
+	static final float BUNKER_SIZE_MODIFIER = 1.1f;
 	
 	//int lives;
 	//boolean isAlive;

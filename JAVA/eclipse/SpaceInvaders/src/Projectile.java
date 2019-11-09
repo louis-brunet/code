@@ -75,6 +75,9 @@ public class Projectile extends LevelItem {
 		setYTop(yTop + yspeed);
 		if(xspeed != 0) {
 			setXLeft(xLeft + xspeed);
+			if(xLeft==0 || xLeft==DrawCanvas.CANVAS_WIDTH-width) {
+				xspeed *= -1;
+			}
 		}
 	}
 	

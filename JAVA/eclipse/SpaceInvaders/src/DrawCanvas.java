@@ -73,24 +73,23 @@ public class DrawCanvas extends JPanel {
        }
        
        if(!player.isAlive) {
+    	   g.setColor(Color.LIGHT_GRAY);
     	   g.setFont( new Font(Font.MONOSPACED, Font.PLAIN, 22));
-    	   g.setColor(Color.WHITE); 
-    	   g.drawString("Play again ? [ENTER]", (CANVAS_WIDTH/2)-124 , 117);
+    	   g.drawString("Play again ? [ENTER]", (CANVAS_WIDTH/2)-124 , 76);
     	   
     	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 32));
     	   g.setColor(Color.RED);
-    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-80 , 42);
-    	   g.setFont( new Font(Font.MONOSPACED, Font.BOLD, 24));
-    	   g.drawString("Score : "+score, (CANVAS_WIDTH/2)-80 , 77);
-
-       }else if(enemyCount==0) {
-    	   g.setColor(Color.RED);
-    	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
-    	   g.drawString("Wave cleared !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
+    	   g.drawString("GAME OVER", (CANVAS_WIDTH/2)-80 , 50);
+       }else {
+    	   if(enemyCount==0) {
+	    	   g.setColor(Color.RED);
+	    	   g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, 32));
+	    	   g.drawString("Wave cleared !", (CANVAS_WIDTH/2)-100 , (CANVAS_HEIGHT/2));
+    	   }
+    	   g.setColor(Color.WHITE);
        }
        
        // Draw score
-       g.setColor(Color.WHITE);
 	   g.setFont( new Font(Font.DIALOG, Font.BOLD, 24));
 	   g.drawString("Score : "+score, 10, CANVAS_HEIGHT - 10);
 
