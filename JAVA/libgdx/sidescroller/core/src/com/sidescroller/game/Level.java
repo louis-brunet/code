@@ -89,7 +89,6 @@ public class Level {
 				}
 				// player spawn point
 				else if(BLOCK_TYPE.PLAYER_SPAWNPOINT.sameColor(currentPixelRGBA)) {
-					
 				}
 				// feather
 				else if(BLOCK_TYPE.ITEM_FEATHER.sameColor(currentPixelRGBA)) {

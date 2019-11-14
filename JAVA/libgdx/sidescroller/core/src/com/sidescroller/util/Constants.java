@@ -18,4 +18,13 @@ public class Constants {
 	
 	// Amount of extra lives at start of level
 	public static final int LIVES_START = 3;
+	
+	// Score value for gold coin
+	public static final int GOLD_COIN_SCORE = 100;
+	
+	// Score value for feather
+	public static final int FEATHER_SCORE = 250;
+	
+	// Duration of feather power-up in seconds
+	public static final float ITEM_FEATHER_POWERUP_DURATION = 9.0f;
 }
