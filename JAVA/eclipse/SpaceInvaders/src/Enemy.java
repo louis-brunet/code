@@ -16,7 +16,7 @@ public class Enemy extends LevelItem{
 	private static final Color DEFAULT_COLOR_BODY = Color.RED;
 	private static final Color DEFAULT_COLOR_EYES = Color.ORANGE;
 	
-	private static int speed = 2;
+	private static int speed = 1;
 	int[][] eyePositions;
 	private int movementSeed;
 	Color colorEyes;

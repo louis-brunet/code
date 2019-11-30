@@ -20,7 +20,7 @@ public class Main extends JFrame {
 	private static final int PROJECTILE_COOLDOWN_FRAMES = 12;
 	private static final int MAX_ROWS = 8;
 	private static final int FIRST_WAVE_ROWS = 2;
-	protected static final int enemiesPerRow = 11;
+	protected static final int enemiesPerRow = 9;
 	protected static int rows = 2;
 	private JPanel contentPane;
 	private DrawCanvas canvas;

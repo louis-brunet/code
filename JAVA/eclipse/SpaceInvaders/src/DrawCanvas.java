@@ -9,8 +9,8 @@ import javax.swing.JPanel;
 
 
 public class DrawCanvas extends JPanel {
-	static final int CANVAS_WIDTH = 880;
-	static final int CANVAS_HEIGHT = 920;
+	static final int CANVAS_WIDTH = 740;
+	static final int CANVAS_HEIGHT = 700;
 	private static final boolean drawHitboxes = false;
 	
 	Player player; 
